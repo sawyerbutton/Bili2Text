@@ -1,0 +1,548 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - Bili2Text Web 转录工具{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- 左侧：转录表单 -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-video me-2"></i>视频转录
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form id="transcriptionForm">
+                        <!-- 视频URL输入 -->
+                        <div class="mb-4">
+                            <label for="videoUrl" class="form-label">
+                                <i class="fas fa-link me-1"></i>视频URL
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fab fa-bilibili"></i>
+                                </span>
+                                <input type="url" class="form-control" id="videoUrl" 
+                                       placeholder="请输入哔哩哔哩视频链接，如：https://www.bilibili.com/video/BV15N4y1J7CA"
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" id="pasteBtn">
+                                    <i class="fas fa-paste"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                支持格式：完整链接、短链接(b23.tv)、BV号
+                            </div>
+                        </div>
+
+                        <!-- 模型选择 -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-microchip me-1"></i>转录模型
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model" id="model-tiny" value="tiny">
+                                        <label class="form-check-label" for="model-tiny">
+                                            <strong>tiny</strong><br>
+                                            <small class="text-muted">快速 • 39MB</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model" id="model-base" value="base">
+                                        <label class="form-check-label" for="model-base">
+                                            <strong>base</strong><br>
+                                            <small class="text-muted">平衡 • 142MB</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model" id="model-medium" value="medium" checked>
+                                        <label class="form-check-label" for="model-medium">
+                                            <strong>medium</strong><br>
+                                            <small class="text-success">推荐 • 769MB</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="model" id="model-large" value="large-v3">
+                                        <label class="form-check-label" for="model-large">
+                                            <strong>large-v3</strong><br>
+                                            <small class="text-muted">精确 • 1550MB</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 高级选项 -->
+                        <div class="mb-4">
+                            <button class="btn btn-link p-0 text-decoration-none" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#advancedOptions">
+                                <i class="fas fa-cog me-1"></i>高级选项
+                                <i class="fas fa-chevron-down ms-1"></i>
+                            </button>
+                            
+                            <div class="collapse mt-3" id="advancedOptions">
+                                <div class="card card-body bg-light">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="useProxy">
+                                                    <label class="form-check-label" for="useProxy">
+                                                        <i class="fas fa-shield-alt me-1"></i>启用代理
+                                                    </label>
+                                                </div>
+                                                <small class="text-muted">如果无法直接访问B站，请启用此选项</small>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="keepAudio" checked>
+                                                    <label class="form-check-label" for="keepAudio">
+                                                        <i class="fas fa-music me-1"></i>保留音频文件
+                                                    </label>
+                                                </div>
+                                                <small class="text-muted">转录完成后保留原始音频文件</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="outputFormat" class="form-label">输出格式</label>
+                                                <select class="form-select" id="outputFormat">
+                                                    <option value="txt" selected>TXT (纯文本)</option>
+                                                    <option value="md">Markdown</option>
+                                                    <option value="json">JSON (含时间戳)</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="language" class="form-label">语言</label>
+                                                <select class="form-select" id="language">
+                                                    <option value="auto" selected>自动检测</option>
+                                                    <option value="zh">中文</option>
+                                                    <option value="en">英文</option>
+                                                    <option value="ja">日文</option>
+                                                    <option value="ko">韩文</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮 -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="button" class="btn btn-outline-secondary" id="clearForm">
+                                <i class="fas fa-eraser me-1"></i>清空
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="startTranscription">
+                                <i class="fas fa-play me-1"></i>开始转录
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 当前任务状态 -->
+            <div class="card shadow-sm mt-4" id="currentTaskCard" style="display: none;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>当前任务状态
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="taskInfo">
+                        <!-- 任务信息将通过JavaScript动态填充 -->
+                    </div>
+                    
+                    <!-- 进度条 -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted">转录进度</span>
+                            <span id="progressText">0%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 id="progressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 任务详情 -->
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <div class="h6 mb-0" id="taskStatus">等待中</div>
+                                <small class="text-muted">状态</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <div class="h6 mb-0" id="elapsedTime">00:00</div>
+                                <small class="text-muted">已用时间</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <div class="h6 mb-0" id="remainingTime">--:--</div>
+                                <small class="text-muted">预计剩余</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="h6 mb-0" id="currentStage">准备中</div>
+                            <small class="text-muted">当前阶段</small>
+                        </div>
+                    </div>
+                    
+                    <!-- 操作按钮 -->
+                    <div class="mt-3 d-flex gap-2">
+                        <button class="btn btn-outline-warning btn-sm" id="pauseTask" style="display: none;">
+                            <i class="fas fa-pause me-1"></i>暂停
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" id="cancelTask">
+                            <i class="fas fa-stop me-1"></i>取消
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" id="viewTaskDetail">
+                            <i class="fas fa-info-circle me-1"></i>详情
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务完成结果 -->
+            <div class="card shadow-sm mt-4" id="taskResultCard" style="display: none;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>转录完成
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="resultInfo">
+                        <!-- 结果信息将通过JavaScript动态填充 -->
+                    </div>
+                    
+                    <div class="mt-3 d-flex gap-2 flex-wrap">
+                        <button class="btn btn-primary" id="downloadResult">
+                            <i class="fas fa-download me-1"></i>下载文本
+                        </button>
+                        <button class="btn btn-outline-primary" id="downloadAudio" style="display: none;">
+                            <i class="fas fa-music me-1"></i>下载音频
+                        </button>
+                        <button class="btn btn-outline-info" id="previewResult">
+                            <i class="fas fa-eye me-1"></i>预览内容
+                        </button>
+                        <button class="btn btn-outline-secondary" id="newTask">
+                            <i class="fas fa-plus me-1"></i>新建任务
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：快捷操作和统计 -->
+        <div class="col-lg-4">
+            <!-- 快捷操作 -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>快捷操作
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="/history" class="btn btn-outline-primary">
+                            <i class="fas fa-history me-2"></i>查看任务历史
+                        </a>
+                        <a href="/system" class="btn btn-outline-info">
+                            <i class="fas fa-server me-2"></i>系统状态
+                        </a>
+                        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#batchModal">
+                            <i class="fas fa-layer-group me-2"></i>批量处理
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 使用统计 -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>今日统计
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <div class="h4 mb-0 text-primary" id="todayTasks">0</div>
+                                <small class="text-muted">任务数</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 mb-0 text-success" id="todaySuccess">0</div>
+                            <small class="text-muted">成功数</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <div class="h6 mb-0" id="totalDuration">0分钟</div>
+                                <small class="text-muted">总时长</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h6 mb-0" id="avgSpeed">0x</div>
+                            <small class="text-muted">平均速度</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近任务 -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>最近任务
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="recentTasks">
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
+                            <p class="mb-0">暂无任务记录</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 批量处理模态框 -->
+<div class="modal fade" id="batchModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-layer-group me-2"></i>批量处理
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="batchUrls" class="form-label">视频URL列表</label>
+                    <textarea class="form-control" id="batchUrls" rows="8" 
+                              placeholder="请输入多个视频链接，每行一个：&#10;https://www.bilibili.com/video/BV1234567890&#10;https://www.bilibili.com/video/BV0987654321&#10;..."></textarea>
+                    <div class="form-text">每行输入一个视频链接，支持最多10个视频同时处理</div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">批量模型</label>
+                        <select class="form-select" id="batchModel">
+                            <option value="tiny">tiny (快速)</option>
+                            <option value="base">base</option>
+                            <option value="medium" selected>medium (推荐)</option>
+                            <option value="large-v3">large-v3 (精确)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">输出格式</label>
+                        <select class="form-select" id="batchFormat">
+                            <option value="txt" selected>TXT</option>
+                            <option value="md">Markdown</option>
+                            <option value="json">JSON</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="batchKeepAudio" checked>
+                        <label class="form-check-label" for="batchKeepAudio">
+                            保留音频文件
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="startBatchProcessing">
+                    <i class="fas fa-play me-1"></i>开始批量处理
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 结果预览模态框 -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>转录结果预览
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent" style="max-height: 500px; overflow-y: auto;">
+                    <!-- 预览内容将通过JavaScript动态填充 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="copyToClipboard">
+                    <i class="fas fa-copy me-1"></i>复制到剪贴板
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/task-manager.js"></script>
+<script>
+    // 页面加载完成后初始化
+    document.addEventListener('DOMContentLoaded', function() {
+        // 设置当前导航项为活跃状态
+        document.getElementById('nav-home').classList.add('active');
+        
+        // 初始化任务管理器
+        if (typeof TaskManager !== 'undefined') {
+            window.taskManager = new TaskManager();
+        }
+        
+        // 加载统计数据
+        loadTodayStats();
+        loadRecentTasks();
+    });
+    
+    // 加载今日统计
+    function loadTodayStats() {
+        fetch('/api/system/stats?period=day')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const stats = data.data.stats;
+                    document.getElementById('todayTasks').textContent = stats.tasks_created || 0;
+                    document.getElementById('todaySuccess').textContent = stats.tasks_completed || 0;
+                    document.getElementById('totalDuration').textContent = formatDuration(stats.total_audio_duration || 0);
+                    document.getElementById('avgSpeed').textContent = (stats.average_processing_speed || 0).toFixed(1) + 'x';
+                }
+            })
+            .catch(error => console.error('加载统计数据失败:', error));
+    }
+    
+    // 加载最近任务
+    function loadRecentTasks() {
+        fetch('/api/tasks/?limit=3')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data.tasks.length > 0) {
+                    const container = document.getElementById('recentTasks');
+                    container.innerHTML = '';
+                    
+                    data.data.tasks.forEach(task => {
+                        const taskElement = createRecentTaskElement(task);
+                        container.appendChild(taskElement);
+                    });
+                }
+            })
+            .catch(error => console.error('加载最近任务失败:', error));
+    }
+    
+    // 创建最近任务元素
+    function createRecentTaskElement(task) {
+        const div = document.createElement('div');
+        div.className = 'border-bottom pb-2 mb-2';
+        
+        const statusIcon = getStatusIcon(task.status);
+        const statusColor = getStatusColor(task.status);
+        
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="small fw-bold text-truncate" style="max-width: 200px;" title="${task.title || task.url}">
+                        ${task.title || task.url}
+                    </div>
+                    <div class="small text-muted">
+                        ${formatDateTime(task.created_at)}
+                    </div>
+                </div>
+                <span class="badge bg-${statusColor}">
+                    <i class="${statusIcon} me-1"></i>${task.status}
+                </span>
+            </div>
+        `;
+        
+        return div;
+    }
+    
+    // 格式化时长
+    function formatDuration(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        
+        if (hours > 0) {
+            return `${hours}小时${minutes}分钟`;
+        } else {
+            return `${minutes}分钟`;
+        }
+    }
+    
+    // 格式化日期时间
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = now - date;
+        
+        if (diff < 60000) { // 1分钟内
+            return '刚刚';
+        } else if (diff < 3600000) { // 1小时内
+            return `${Math.floor(diff / 60000)}分钟前`;
+        } else if (diff < 86400000) { // 24小时内
+            return `${Math.floor(diff / 3600000)}小时前`;
+        } else {
+            return date.toLocaleDateString('zh-CN');
+        }
+    }
+    
+    // 获取状态图标
+    function getStatusIcon(status) {
+        const icons = {
+            'pending': 'fas fa-clock',
+            'downloading': 'fas fa-download',
+            'transcribing': 'fas fa-microphone',
+            'completed': 'fas fa-check',
+            'failed': 'fas fa-times',
+            'cancelled': 'fas fa-ban'
+        };
+        return icons[status] || 'fas fa-question';
+    }
+    
+    // 获取状态颜色
+    function getStatusColor(status) {
+        const colors = {
+            'pending': 'secondary',
+            'downloading': 'info',
+            'transcribing': 'warning',
+            'completed': 'success',
+            'failed': 'danger',
+            'cancelled': 'dark'
+        };
+        return colors[status] || 'secondary';
+    }
+</script>
+{% endblock %} 

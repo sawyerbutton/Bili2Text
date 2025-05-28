@@ -1,0 +1,463 @@
+{% extends "base.html" %}
+
+{% block title %}错误处理测试 - Bili2Text Web{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="fas fa-bug me-2"></i>
+                    错误处理测试
+                </h2>
+                <div>
+                    <button class="btn btn-outline-secondary" onclick="window.errorHandler.clearLocalErrorLogs()">
+                        <i class="fas fa-trash me-1"></i>清除本地日志
+                    </button>
+                    <button class="btn btn-outline-info" onclick="showErrorLogs()">
+                        <i class="fas fa-list me-1"></i>查看错误日志
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 前端错误测试 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-desktop me-2"></i>前端错误测试</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-danger" onclick="testJavaScriptError()">
+                            JavaScript运行时错误
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="testPromiseRejection()">
+                            Promise拒绝错误
+                        </button>
+                        <button class="btn btn-outline-info" onclick="testNetworkError()">
+                            网络连接错误
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="testTimeoutError()">
+                            请求超时错误
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="testCustomError()">
+                            自定义业务错误
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 后端错误测试 -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-server me-2"></i>后端错误测试</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-danger" onclick="testValidationError()">
+                            数据验证错误
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="testNotFoundError()">
+                            资源不存在错误
+                        </button>
+                        <button class="btn btn-outline-info" onclick="testSystemOverloadError()">
+                            系统过载错误
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="testInternalError()">
+                            服务器内部错误
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="testAuthError()">
+                            认证授权错误
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- 错误处理功能测试 -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-tools me-2"></i>错误处理功能测试</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>通知系统</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-sm btn-success" onclick="testSuccessNotification()">
+                                    成功通知
+                                </button>
+                                <button class="btn btn-sm btn-warning" onclick="testWarningNotification()">
+                                    警告通知
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="testErrorNotification()">
+                                    错误通知
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>模态框</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-sm btn-outline-danger" onclick="testErrorModal()">
+                                    错误详情模态框
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" onclick="testRetryModal()">
+                                    重试选项模态框
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>重试机制</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-sm btn-outline-info" onclick="testRetryMechanism()">
+                                    自动重试测试
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="testManualRetry()">
+                                    手动重试测试
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 错误统计 -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar me-2"></i>错误统计</h5>
+                </div>
+                <div class="card-body">
+                    <div id="errorStats">
+                        <p class="text-muted">点击"查看错误日志"按钮查看统计信息</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 错误日志模态框 -->
+<div class="modal fade" id="errorLogsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-list me-2"></i>错误日志
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="errorLogsList"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="window.errorHandler.clearLocalErrorLogs(); bootstrap.Modal.getInstance(document.getElementById('errorLogsModal')).hide();">
+                    清除所有日志
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 前端错误测试函数
+function testJavaScriptError() {
+    // 故意触发JavaScript错误
+    nonExistentFunction();
+}
+
+function testPromiseRejection() {
+    // 故意触发Promise拒绝
+    Promise.reject(new Error('测试Promise拒绝错误'));
+}
+
+function testNetworkError() {
+    // 模拟网络错误
+    fetch('/api/nonexistent-endpoint')
+        .catch(error => {
+            window.errorHandler.handleError(error, 'network_test');
+        });
+}
+
+function testTimeoutError() {
+    // 模拟超时错误
+    const error = new Error('Request timeout');
+    error.name = 'TimeoutError';
+    window.errorHandler.handleError(error, 'timeout_test');
+}
+
+function testCustomError() {
+    // 测试自定义错误
+    const error = {
+        code: 'CUSTOM_ERROR',
+        message: '这是一个自定义错误',
+        details: {
+            test: true,
+            timestamp: new Date().toISOString()
+        }
+    };
+    window.errorHandler.handleError(error, 'custom_test');
+}
+
+// 后端错误测试函数
+async function testValidationError() {
+    try {
+        await window.apiClient.post('/tasks/', {
+            // 故意发送无效数据
+            url: '',
+            model_name: 'invalid_model'
+        });
+    } catch (error) {
+        // 错误已由ErrorHandler处理
+    }
+}
+
+async function testNotFoundError() {
+    try {
+        await window.apiClient.get('/tasks/nonexistent-task-id');
+    } catch (error) {
+        // 错误已由ErrorHandler处理
+    }
+}
+
+async function testSystemOverloadError() {
+    // 模拟系统过载错误
+    const error = {
+        response: {
+            status: 503,
+            statusText: 'Service Unavailable',
+            data: {
+                error: {
+                    code: 'SYSTEM_OVERLOAD',
+                    message: '系统负载过高，请稍后重试'
+                }
+            }
+        }
+    };
+    window.errorHandler.handleError(error, 'overload_test');
+}
+
+async function testInternalError() {
+    try {
+        await window.apiClient.get('/api/test-internal-error');
+    } catch (error) {
+        // 错误已由ErrorHandler处理
+    }
+}
+
+async function testAuthError() {
+    // 模拟认证错误
+    const error = {
+        response: {
+            status: 401,
+            statusText: 'Unauthorized',
+            data: {
+                error: {
+                    code: 'UNAUTHORIZED',
+                    message: '未授权访问'
+                }
+            }
+        }
+    };
+    window.errorHandler.handleError(error, 'auth_test');
+}
+
+// 通知测试函数
+function testSuccessNotification() {
+    window.notificationManager.show('这是一个成功通知', 'success');
+}
+
+function testWarningNotification() {
+    window.notificationManager.show('这是一个警告通知', 'warning');
+}
+
+function testErrorNotification() {
+    window.notificationManager.show('这是一个错误通知', 'danger');
+}
+
+// 模态框测试函数
+function testErrorModal() {
+    const error = {
+        code: 'TEST_ERROR',
+        message: '这是一个测试错误',
+        details: {
+            component: 'error-test',
+            action: 'modal_test',
+            timestamp: new Date().toISOString()
+        }
+    };
+    window.errorHandler.handleError(error, 'modal_test', { modal: true });
+}
+
+function testRetryModal() {
+    const error = {
+        code: 'NETWORK_ERROR',
+        message: '网络连接失败',
+        details: { retryable: true }
+    };
+    window.errorHandler.handleError(error, 'retry_test', {
+        retryCallback: () => {
+            window.notificationManager.show('重试操作已执行', 'info');
+        }
+    });
+}
+
+// 重试机制测试函数
+function testRetryMechanism() {
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    function attemptOperation() {
+        attempts++;
+        console.log(`尝试第 ${attempts} 次操作`);
+        
+        if (attempts < maxAttempts) {
+            const error = {
+                code: 'NETWORK_ERROR',
+                message: `操作失败 (${attempts}/${maxAttempts})`
+            };
+            window.errorHandler.handleError(error, 'retry_mechanism_test', {
+                retryCallback: attemptOperation
+            });
+        } else {
+            window.notificationManager.show('重试机制测试完成', 'success');
+        }
+    }
+    
+    attemptOperation();
+}
+
+function testManualRetry() {
+    const error = {
+        code: 'TIMEOUT_ERROR',
+        message: '请求超时，请手动重试'
+    };
+    window.errorHandler.handleError(error, 'manual_retry_test', {
+        retryCallback: () => {
+            window.notificationManager.show('手动重试已执行', 'success');
+        }
+    });
+}
+
+// 查看错误日志
+function showErrorLogs() {
+    const logs = window.errorHandler.getLocalErrorLogs();
+    const modal = document.getElementById('errorLogsModal');
+    const logsList = document.getElementById('errorLogsList');
+    const statsDiv = document.getElementById('errorStats');
+    
+    if (logs.length === 0) {
+        logsList.innerHTML = '<p class="text-muted">暂无错误日志</p>';
+        statsDiv.innerHTML = '<p class="text-muted">暂无错误统计</p>';
+    } else {
+        // 显示日志列表
+        logsList.innerHTML = logs.map((log, index) => `
+            <div class="card mb-2">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="badge bg-${getLogLevelColor(log.code)}">${log.code}</span>
+                    <small class="text-muted">${new Date(log.timestamp).toLocaleString()}</small>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>消息:</strong> ${log.message}</p>
+                    <p class="mb-1"><strong>上下文:</strong> ${log.context}</p>
+                    <p class="mb-1"><strong>URL:</strong> ${log.url}</p>
+                    ${log.details ? `<p class="mb-0"><strong>详情:</strong> <code>${JSON.stringify(log.details, null, 2)}</code></p>` : ''}
+                </div>
+            </div>
+        `).join('');
+        
+        // 显示统计信息
+        const stats = generateErrorStats(logs);
+        statsDiv.innerHTML = `
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h4 class="text-primary">${stats.total}</h4>
+                        <p class="mb-0">总错误数</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h4 class="text-danger">${stats.byLevel.error || 0}</h4>
+                        <p class="mb-0">严重错误</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h4 class="text-warning">${stats.byLevel.warning || 0}</h4>
+                        <p class="mb-0">警告</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h4 class="text-info">${stats.byLevel.info || 0}</h4>
+                        <p class="mb-0">信息</p>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-12">
+                    <h6>错误类型分布:</h6>
+                    ${Object.entries(stats.byCode).map(([code, count]) => 
+                        `<span class="badge bg-secondary me-2">${code}: ${count}</span>`
+                    ).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+}
+
+function getLogLevelColor(code) {
+    const criticalErrors = ['INTERNAL_ERROR', 'DATABASE_ERROR', 'SYSTEM_OVERLOAD'];
+    const warningErrors = ['NETWORK_ERROR', 'TIMEOUT_ERROR', 'SERVICE_UNAVAILABLE'];
+    
+    if (criticalErrors.includes(code)) {
+        return 'danger';
+    } else if (warningErrors.includes(code)) {
+        return 'warning';
+    } else {
+        return 'info';
+    }
+}
+
+function generateErrorStats(logs) {
+    const stats = {
+        total: logs.length,
+        byLevel: {},
+        byCode: {},
+        byContext: {}
+    };
+    
+    logs.forEach(log => {
+        // 按级别统计
+        const level = getLogLevelColor(log.code);
+        stats.byLevel[level] = (stats.byLevel[level] || 0) + 1;
+        
+        // 按错误代码统计
+        stats.byCode[log.code] = (stats.byCode[log.code] || 0) + 1;
+        
+        // 按上下文统计
+        stats.byContext[log.context] = (stats.byContext[log.context] || 0) + 1;
+    });
+    
+    return stats;
+}
+</script>
+{% endblock %} 
