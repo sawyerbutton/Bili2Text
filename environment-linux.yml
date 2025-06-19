@@ -1,0 +1,66 @@
+name: bili2text-linux
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  # Python 核心
+  - python=3.11
+  - pip
+  
+  # PyTorch 生态系统 (CUDA 支持)
+  - pytorch=2.1.2
+  - pytorch-cuda=12.1
+  - torchaudio=2.1.2
+  - torchvision=0.16.2
+  
+  # 科学计算库
+  - numpy=1.26.3
+  - scipy
+  
+  # 系统依赖
+  - ffmpeg
+  - openssl
+  - certifi
+  - ca-certificates
+  
+  # Linux 系统库
+  - libgcc-ng
+  - libstdcxx-ng
+  - glibc
+  
+  # pip 安装的包
+  - pip:
+    # 核心功能包
+    - openai-whisper==20231117
+    - bilix==0.18.5
+    - bilibili-api
+    
+    # 网络和异步
+    - httpx==0.26.0
+    - aiofiles==23.2.1
+    - anyio==4.2.0
+    
+    # 数据处理
+    - beautifulsoup4==4.12.2
+    - pydantic==1.10.13
+    - regex==2023.12.25
+    
+    # 媒体处理
+    - pymp4==1.4.0
+    - m3u8==4.0.0
+    
+    # 加密和安全
+    - pycryptodome==3.20.0
+    - cryptography
+    
+    # 工具库
+    - tqdm==4.66.1
+    - rich==13.7.0
+    - click==8.1.7
+    
+    # 其他依赖
+    - tiktoken==0.5.2
+    - jinja2==3.1.3
+    - markdown-it-py==3.0.0 

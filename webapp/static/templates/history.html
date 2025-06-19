@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}任务历史 - Bili2Text Web 转录工具{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- 页面标题和操作栏 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-history me-2"></i>任务历史</h2>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" id="refreshTasks">
+                <i class="fas fa-sync-alt me-1"></i>刷新
+            </button>
+            <button class="btn btn-outline-danger" id="clearHistory">
+                <i class="fas fa-trash me-1"></i>清空历史
+            </button>
+        </div>
+    </div>
+
+    <!-- 筛选和搜索栏 -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">状态筛选</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">全部状态</option>
+                        <option value="completed">已完成</option>
+                        <option value="failed">失败</option>
+                        <option value="pending">等待中</option>
+                        <option value="transcribing">转录中</option>
+                        <option value="cancelled">已取消</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">时间范围</label>
+                    <select class="form-select" id="timeFilter">
+                        <option value="">全部时间</option>
+                        <option value="today">今天</option>
+                        <option value="week">本周</option>
+                        <option value="month">本月</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">搜索</label>
+                    <input type="text" class="form-control" id="searchInput" placeholder="搜索视频标题或BV号...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" id="applyFilters">
+                        <i class="fas fa-search me-1"></i>搜索
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量操作栏 -->
+    <div class="card shadow-sm mb-4" id="batchActions" style="display: none;">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <span>已选择 <span id="selectedCount">0</span> 个任务</span>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" id="batchDownload">
+                        <i class="fas fa-download me-1"></i>批量下载
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" id="batchDelete">
+                        <i class="fas fa-trash me-1"></i>批量删除
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" id="clearSelection">
+                        <i class="fas fa-times me-1"></i>取消选择
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务列表 -->
+    <div id="tasksList">
+        <!-- 任务列表将通过JavaScript动态填充 -->
+    </div>
+
+    <!-- 分页 -->
+    <nav aria-label="任务分页" class="mt-4">
+        <ul class="pagination justify-content-center" id="pagination">
+            <!-- 分页将通过JavaScript动态生成 -->
+        </ul>
+    </nav>
+</div>
+
+<!-- 任务详情模态框 -->
+<div class="modal fade" id="taskDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle me-2"></i>任务详情
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="taskDetailContent">
+                <!-- 详情内容将通过JavaScript动态填充 -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/history-manager.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 设置当前导航项为活跃状态
+        document.getElementById('nav-history').classList.add('active');
+        
+        // 初始化历史管理器
+        if (typeof HistoryManager !== 'undefined') {
+            window.historyManager = new HistoryManager();
+        }
+    });
+</script>
+{% endblock %} 
