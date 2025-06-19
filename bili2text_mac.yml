@@ -1,0 +1,13 @@
+name: bili2text
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pip:
+    - openai-whisper
+    - bilix

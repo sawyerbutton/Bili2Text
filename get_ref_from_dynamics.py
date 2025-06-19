@@ -1,3 +1,16 @@
+"""
+B站视频音频提取与转录工具
+
+此脚本用于自动获取B站特定UP主（小黛晨读）的最新"参考信息"系列视频，
+下载其音频内容，并使用whisper模型将语音转录为文本，
+最终生成包含视频信息和转录文本的Markdown文件。
+
+功能：
+1. 获取指定UP主最新动态中的"参考信息"系列视频
+2. 下载视频的音频部分
+3. 使用whisper模型进行语音转录
+4. 生成带有视频信息和转录内容的Markdown文件
+"""
 import asyncio
 import os
 import re
@@ -9,15 +22,23 @@ import whisper
 from bilibili_api import settings, sync, user
 from bilix.sites.bilibili import DownloaderBilibili
 
+# 设置目标UP主ID
 uid = 1556651916  # 小黛晨读
 u = user.User(uid)
 
+# 代理设置
 use_proxy = True
 if use_proxy:
     settings.proxy = "http://127.0.0.1:7890"
 
 
 async def get_latest_video_info():
+    """
+    获取UP主最新动态信息，提取最新视频的BV号、标题和描述
+    
+    返回:
+        tuple: (bvid, title, desc) - BV号、标题和描述
+    """
     dynamics = []
     page = await u.get_dynamics(0)
     if "cards" in page:
@@ -34,12 +55,20 @@ async def get_latest_video_info():
 
 
 async def downloadaudio(url):
+    """
+    下载视频的音频部分
+    
+    参数:
+        url: 视频URL
+    """
     async with DownloaderBilibili() as d:
         await d.get_video(url, path="./temp", only_audio=True)
 
 
+# 获取最新视频信息
 bvid, title_ori, desc = sync(get_latest_video_info())
 
+# 检查视频标题是否包含"参考信息"，若不包含则退出
 if "参考信息" in title_ori:
     title = re.sub(r"【参考信息第(.*?)期】(.*?)", r"【参考信息\1】\2", title_ori)
 else:
@@ -49,6 +78,7 @@ print(bvid)
 print(title)
 print(desc)
 
+# 检查视频是否已处理过
 with open("processed.txt", "r", encoding="utf-8") as f:
     processed_video = f.readlines()
 
@@ -57,14 +87,16 @@ if bvid in processed_video:
     print(bvid, title, "is processed")
     quit()
 else:
+    # 记录已处理的视频
     with open("processed.txt", "a", encoding="utf-8") as f:
         f.write("\n" + bvid)
 
-## prepare environment
+# 准备工作环境
 print("Preparing......")
 audio_folder_path = "./audio"
 temp_folder_path = "./temp"
 result_folder_path = "./result"
+# 确保所需文件夹存在
 if not os.path.exists(audio_folder_path):
     os.makedirs(audio_folder_path)
 if not os.path.exists(temp_folder_path):
@@ -72,20 +104,22 @@ if not os.path.exists(temp_folder_path):
 if not os.path.exists(result_folder_path):
     os.makedirs(result_folder_path)
 
-## download audio to ./temp
+# 下载音频到临时文件夹
 audio_url = "https://www.bilibili.com/video/" + bvid
 print("Downloading audio from", audio_url)
 asyncio.run(downloadaudio(audio_url))
 print("Audio Downloaded.")
+# 移动音频文件到指定文件夹
 audio_name = os.listdir(temp_folder_path)[0]
 temp_path = temp_folder_path + "/" + audio_name
 audio_path = audio_folder_path + "/" + audio_name
 shutil.move(temp_path, audio_path)
 
 
-## write basic info
+# 创建Markdown文件并写入基本信息
 text_path = result_folder_path + "/" + audio_name + ".md"
 with open(text_path, "w", encoding="utf-8") as f:
+    # 写入YAML元数据
     f.write("---\ntitle: ")
     f.write(title + "\n")
     f.write("description: " + desc + "\n")
@@ -94,6 +128,7 @@ with open(text_path, "w", encoding="utf-8") as f:
     f.write("date: " + timestr + "\n")
     f.write("tags: \neditor: markdown\n")
     f.write("dateCreated: " + timestr + "\n---\n")
+    # 写入B站和YouTube播放器嵌入代码
     text = """
 ## Tabs {.tabset}
 ### B站
@@ -118,9 +153,9 @@ with open(text_path, "w", encoding="utf-8") as f:
     f.write(bvid)
     f.write(text2)
 
-## load whisper model
+# 加载whisper语音识别模型
 model_name = "large-v3"
-model_name = "medium"
+model_name = "medium"  # 实际使用medium模型
 print("Using whisper model", model_name)
 print("Loading Model......")
 time1 = datetime.now()
@@ -133,19 +168,21 @@ model = whisper.load_model(
 time2 = datetime.now()
 print("Model Loaded in", (time2 - time1).seconds, "seconds")
 
-## transcribe
+# 开始音频转录
 print("Start Transcribe......")
 time3 = datetime.now()
 result = model.transcribe(
     audio_path,
     verbose=True,
-    initial_prompt="“生于忧患，死于安乐。岂不快哉？”简体中文，加上标点。",
+    initial_prompt=""生于忧患，死于安乐。岂不快哉？"简体中文，加上标点。",  # 提示模型使用中文和标点
 )
 time4 = datetime.now()
 print("Transcribe Finish in", (time4 - time3).seconds, "seconds")
 
+# 保存转录结果
 print("Saving result......")
 text = result["text"]
+# 替换英文标点为中文标点
 text = re.sub(",", "，", text)
 text = re.sub(r"\?", "？", text)
 
