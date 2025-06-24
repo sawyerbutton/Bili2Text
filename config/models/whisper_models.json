@@ -1,0 +1,54 @@
+{
+  "models": {
+    "tiny": {
+      "size": "39 MB",
+      "speed": "very_fast",
+      "accuracy": "low",
+      "memory_required": "1GB",
+      "multilingual": true,
+      "english_only": false,
+      "recommended_for": "快速测试、实时转录"
+    },
+    "base": {
+      "size": "74 MB", 
+      "speed": "fast",
+      "accuracy": "medium",
+      "memory_required": "2GB",
+      "multilingual": true,
+      "english_only": false,
+      "recommended_for": "日常使用"
+    },
+    "medium": {
+      "size": "769 MB",
+      "speed": "medium", 
+      "accuracy": "high",
+      "memory_required": "5GB",
+      "multilingual": true,
+      "english_only": false,
+      "recommended_for": "推荐使用，质量优先",
+      "default": true
+    },
+    "large-v3": {
+      "size": "1550 MB",
+      "speed": "slow",
+      "accuracy": "very_high", 
+      "memory_required": "10GB",
+      "multilingual": true,
+      "english_only": false,
+      "recommended_for": "最高质量转录"
+    }
+  },
+  "default_model": "medium",
+  "cache_dir": "./.cache/whisper",
+  "supported_languages": {
+    "auto": "自动检测",
+    "zh": "中文",
+    "en": "英文",
+    "ja": "日文", 
+    "ko": "韩文",
+    "fr": "法文",
+    "de": "德文",
+    "es": "西班牙文",
+    "ru": "俄文"
+  }
+} 
