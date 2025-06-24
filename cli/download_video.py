@@ -15,7 +15,7 @@ Bili2Text - 哔哩哔哩视频下载工具（批量处理版本）
 与main.py的区别：
     - 本文件专门用于视频下载，不包含音频转录功能
     - 下载完整的MP4视频文件，而非仅音频
-    - 输出目录为根目录下的video文件夹
+    - 输出目录为storage目录下的video文件夹
     - 适用于需要保存完整视频文件的场景
 
 依赖库：
@@ -36,6 +36,9 @@ from bilix.sites.bilibili import DownloaderBilibili
 # 配置要处理的视频URL列表
 video_urls = [
     "https://www.bilibili.com/video/BV1LCM3zwEH9/?spm_id_from=333.1391.0.0",
+    "https://www.bilibili.com/video/BV1mzNxzJEB8/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1tbKAzQEQM/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1fsKwzvECu/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
     # 可以在这里添加更多视频URL
     # "https://www.bilibili.com/video/BVXXXXXXX",
     # "https://www.bilibili.com/video/BVXXXXXXX",
@@ -68,8 +71,8 @@ def setup_directories():
     """
     设置和创建必要的目录结构
     """
-    video_folder_path = "./video"      # 视频文件存储目录
-    temp_folder_path = "./temp"        # 临时下载目录
+    video_folder_path = "./storage/video"      # 视频文件存储目录
+    temp_folder_path = "./storage/temp"        # 临时下载目录
     
     # 创建必要的目录结构
     if not os.path.exists(video_folder_path):
