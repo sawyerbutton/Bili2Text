@@ -35,26 +35,32 @@ from bilix.sites.bilibili import DownloaderBilibili
 
 # 配置要处理的视频URL列表
 video_urls = [
-    "https://www.bilibili.com/video/BV1LCM3zwEH9/?spm_id_from=333.1391.0.0",
-    "https://www.bilibili.com/video/BV1mzNxzJEB8/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
-    "https://www.bilibili.com/video/BV1tbKAzQEQM/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
-    "https://www.bilibili.com/video/BV1fsKwzvECu/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
+    "https://www.bilibili.com/video/BV14hNbzpEjx/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1PdTMzYEmb/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1p4MuzNEkK/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1H2qLY7EcK/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1KvKtzREkV/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
+    # "https://www.bilibili.com/video/BV1LCM3zwEH9/?spm_id_from=333.1391.0.0",
+    # "https://www.bilibili.com/video/BV1mzNxzJEB8/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    # "https://www.bilibili.com/video/BV1tbKAzQEQM/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    # "https://www.bilibili.com/video/BV1fsKwzvECu/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
     # 可以在这里添加更多视频URL
     # "https://www.bilibili.com/video/BVXXXXXXX",
     # "https://www.bilibili.com/video/BVXXXXXXX",
 ]
 
 
-async def download_video(url):
+async def download_video(url, temp_path):
     """
     下载指定B站视频的MP4文件
     
     Args:
         url (str): B站视频URL
+        temp_path (str): 临时下载目录路径
         
     功能：
         - 使用bilix库异步下载完整视频文件
-        - 保存到./temp目录
+        - 保存到指定的临时目录
         - 下载MP4格式的视频文件
         
     注意：
@@ -62,8 +68,9 @@ async def download_video(url):
         - 下载的文件会先保存在temp目录中，然后移动到video目录
     """
     print(f"开始下载视频: {url}")
+    print(f"临时下载目录: {temp_path}")
     async with DownloaderBilibili() as d:
-        await d.get_video(url, path="./temp")  # 下载完整视频，不使用only_audio参数
+        await d.get_video(url, path=temp_path)  # 使用配置的临时目录路径
     print(f"视频下载完成: {url}")
 
 
@@ -117,9 +124,9 @@ def move_video_files(temp_folder_path, video_folder_path):
             print(f"视频文件已移动到: {video_path}")
 
 
-async def main():
+async def batch_main():
     """
-    主函数：批量下载视频处理流程
+    主函数：批量下载视频处理流程（用于直接运行脚本）
     """
     print("Bili2Text - B站视频下载工具")
     print("=" * 50)
@@ -139,7 +146,7 @@ async def main():
         
         try:
             # 下载视频文件到临时目录
-            await download_video(video_url)
+            await download_video(video_url, temp_folder_path)
             
             # 移动视频文件到指定目录
             print("正在移动文件到video目录...")
@@ -157,6 +164,57 @@ async def main():
     print(f"视频文件保存在: {os.path.abspath(video_folder_path)}")
 
 
+async def single_video_download(url, output_dir):
+    """
+    下载单个视频（用于CLI调用）
+    
+    Args:
+        url (str): 视频URL
+        output_dir (str): 输出目录
+    """
+    print("Bili2Text - B站视频下载工具")
+    print("=" * 50)
+    print(f"下载视频: {url}")
+    print(f"输出目录: {output_dir}")
+    
+    # 设置临时目录为storage/temp
+    temp_folder_path = "./storage/temp"
+    video_folder_path = output_dir
+    
+    # 创建必要的目录
+    os.makedirs(video_folder_path, exist_ok=True)
+    os.makedirs(temp_folder_path, exist_ok=True)
+    
+    try:
+        start_time = datetime.now()
+        
+        # 下载视频
+        await download_video(url, temp_folder_path)
+        
+        # 移动视频文件
+        print("正在移动文件到输出目录...")
+        move_video_files(temp_folder_path, video_folder_path)
+        
+        end_time = datetime.now()
+        duration = (end_time - start_time).seconds
+        print(f"视频下载完成，耗时 {duration} 秒")
+        print(f"文件保存在: {os.path.abspath(video_folder_path)}")
+        
+    except Exception as e:
+        print(f"下载视频时出现错误: {str(e)}")
+        raise
+
+
+def main(args):
+    """
+    CLI主入口函数（用于处理命令行参数）
+    
+    Args:
+        args: 命令行参数对象
+    """
+    asyncio.run(single_video_download(args.url, args.output_dir))
+
+
 if __name__ == "__main__":
     # 运行批量下载程序
-    asyncio.run(main()) 
+    asyncio.run(batch_main()) 

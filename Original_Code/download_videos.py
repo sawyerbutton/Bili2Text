@@ -42,16 +42,17 @@ video_urls = [
 ]
 
 
-async def download_video(url):
+async def download_video(url, temp_path):
     """
     下载指定B站视频的MP4文件
     
     Args:
         url (str): B站视频URL
+        temp_path (str): 临时下载目录路径
         
     功能：
         - 使用bilix库异步下载完整视频文件
-        - 保存到./temp目录
+        - 保存到指定的临时目录
         - 下载MP4格式的视频文件
         
     注意：
@@ -59,8 +60,9 @@ async def download_video(url):
         - 下载的文件会先保存在temp目录中，然后移动到video目录
     """
     print(f"开始下载视频: {url}")
+    print(f"临时下载目录: {temp_path}")
     async with DownloaderBilibili() as d:
-        await d.get_video(url, path="./temp")  # 下载完整视频，不使用only_audio参数
+        await d.get_video(url, path=temp_path)  # 使用配置的临时目录路径
     print(f"视频下载完成: {url}")
 
 
@@ -136,7 +138,7 @@ async def main():
         
         try:
             # 下载视频文件到临时目录
-            await download_video(video_url)
+            await download_video(video_url, temp_folder_path)
             
             # 移动视频文件到指定目录
             print("正在移动文件到video目录...")
