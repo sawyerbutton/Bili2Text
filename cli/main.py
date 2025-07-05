@@ -31,6 +31,9 @@ def main():
   
   # 批量处理
   bili2text batch --input-dir ./videos --output-dir ./results
+  
+  # 转录本地视频文件
+  bili2text transcribe --input-dir ./storage/video --output-dir ./storage/results/result
         """
     )
     
@@ -64,6 +67,20 @@ def main():
     batch_parser.add_argument('--type', choices=['audio', 'video'], 
                              default='audio', help='处理类型')
     
+    # 转录本地视频文件命令
+    transcribe_parser = subparsers.add_parser('transcribe', help='转录本地视频文件')
+    transcribe_parser.add_argument('--input-dir', 
+                                  default='./storage/video',
+                                  help='视频文件输入目录')
+    transcribe_parser.add_argument('--output-dir',
+                                  default='./storage/results/result',
+                                  help='转录结果输出目录')
+    transcribe_parser.add_argument('--model', default='medium',
+                                  choices=['tiny', 'base', 'medium', 'large-v3'],
+                                  help='Whisper模型选择')
+    transcribe_parser.add_argument('--force-cpu', action='store_true',
+                                  help='强制使用CPU (即使有GPU可用)')
+    
     # 解析参数
     args = parser.parse_args()
     
@@ -85,6 +102,9 @@ def main():
         elif args.command == 'batch':
             from cli.batch_processor import main as batch_main
             batch_main(args)
+        elif args.command == 'transcribe':
+            from cli.transcribe_videos import main as transcribe_main
+            transcribe_main(args)
     except KeyboardInterrupt:
         print("\n用户中断操作")
         sys.exit(1)

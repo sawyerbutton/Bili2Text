@@ -35,18 +35,24 @@ from bilix.sites.bilibili import DownloaderBilibili
 
 # 配置要处理的视频URL列表
 video_urls = [
-    "https://www.bilibili.com/video/BV14hNbzpEjx/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
-    "https://www.bilibili.com/video/BV1PdTMzYEmb/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
-    "https://www.bilibili.com/video/BV1p4MuzNEkK/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
-    "https://www.bilibili.com/video/BV1H2qLY7EcK/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
-    "https://www.bilibili.com/video/BV1KvKtzREkV/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
-    # "https://www.bilibili.com/video/BV1LCM3zwEH9/?spm_id_from=333.1391.0.0",
+    # "https://www.bilibili.com/video/BV14hNbzpEjx/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    # "https://www.bilibili.com/video/BV1PdTMzYEmb/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    # "https://www.bilibili.com/video/BV1p4MuzNEkK/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    # "https://www.bilibili.com/video/BV1H2qLY7EcK/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    # "https://www.bilibili.com/video/BV1KvKtzREkV/?spm_id_from=333.337.search-card.all.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
+    # # "https://www.bilibili.com/video/BV1LCM3zwEH9/?spm_id_from=333.1391.0.0",
     # "https://www.bilibili.com/video/BV1mzNxzJEB8/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
     # "https://www.bilibili.com/video/BV1tbKAzQEQM/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
     # "https://www.bilibili.com/video/BV1fsKwzvECu/?spm_id_from=333.1391.top_right_bar_window_default_collection.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
     # 可以在这里添加更多视频URL
     # "https://www.bilibili.com/video/BVXXXXXXX",
     # "https://www.bilibili.com/video/BVXXXXXXX",
+    # "https://www.bilibili.com/video/BV1Mv7pzzEy5/?spm_id_from=333.1007.top_right_bar_window_history.content.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    # "https://www.bilibili.com/video/BV13b7pzCEeK/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    # "https://www.bilibili.com/video/BV1ssTqzjECD/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
+    "https://www.bilibili.com/video/BV1xz3KzgEX1/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV15AgyzxEhr/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1g43szwEVL/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
 ]
 
 
