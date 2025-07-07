@@ -4,225 +4,139 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Bili2Text is a powerful video transcription tool for Bilibili videos, built with dual architecture:
-- **Web Application**: Modern Flask-based web interface with WebSocket real-time updates
-- **CLI Tool**: Command-line interface for batch processing and automation
+Bili2Text is a collection of Python scripts for transcribing Bilibili videos using OpenAI Whisper. The project focuses on simplicity and functionality, providing proven video downloading and transcription capabilities through a set of well-tested scripts.
 
-The project uses OpenAI Whisper for speech recognition and provides comprehensive video downloading and transcription capabilities.
+## 🧹 Project Status: Simplified and Focused
 
-## 🚧 Project Status: Under Refactoring
+**Current Status**: The project has been simplified to focus on core functionality through proven scripts.
 
-**Current Status**: The project is undergoing comprehensive refactoring to improve code quality, security, and maintainability.
-
-**Refactoring Goals**:
-- ✅ Clean up codebase (216+ MB saved through file cleanup)
-- 🔄 Fix critical security vulnerabilities (URL validation, path traversal)
-- 🔄 Eliminate code duplication (500+ lines of repeated code)
-- 🔄 Improve architecture (decouple modules, implement shared services)
-- 🔄 Standardize error handling and configuration management
-
-**Known Issues Being Addressed**:
-- TaskManager methods are too long (150+ lines)
-- Security vulnerabilities in URL validation and file path handling
-- Code duplication between CLI and Web modules
-- Reverse dependencies violating layered architecture
-- Memory issues with large file transcription
+**Project Philosophy**:
+- ✅ Simplicity over complexity
+- ✅ Proven functionality over theoretical architecture  
+- ✅ Single-purpose scripts that work reliably
+- ✅ Focus on core value: video transcription
 
 ## Development Commands
 
 ### Environment Setup
 ```bash
-# Create virtual environment
+# Create virtual environment (recommended)
 python3.11 -m venv venv
 source venv/bin/activate  # Linux/macOS
 # or venv\Scripts\activate  # Windows
 
-# Install dependencies
-pip install -r requirements/web.txt    # For web app
-pip install -r requirements/cli.txt    # For CLI only
-pip install -r requirements/dev.txt    # For development
+# Install dependencies (check each script for requirements)
+pip install openai-whisper yt-dlp requests bilix
 ```
 
-### Running the Application
+### Running the Scripts
 
-#### Web Application
+#### Core Transcription
 ```bash
-# Development mode
-python run.py --debug
+# Simple transcription
+python Original_Code/simple_transcribe.py
 
-# Production mode
-python run.py --production --host 0.0.0.0 --port 8000
+# Main batch transcription  
+python Original_Code/main.py
 
-# Quick application test
-python test_app.py
+# InfinityAcademy specific transcription
+python Original_Code/transcribe_infinityacademy_audio.py
 ```
 
-#### CLI Tool
+#### Video Download
 ```bash
-# Audio transcription
-python -m cli.main audio --url "https://www.bilibili.com/video/BV1234567890" --model medium
+# Download videos
+python Original_Code/download_videos.py
 
-# Video download only
-python -m cli.main video --url "https://www.bilibili.com/video/BV1234567890"
-
-# Batch processing
-python -m cli.main batch --input-dir ./videos --output-dir ./results --type audio
+# Download InfinityAcademy videos
+python Original_Code/download_infinityacademy_audio.py
 ```
 
-### Docker Deployment
+#### Content Discovery
 ```bash
-# Quick deployment (Linux/macOS)
-chmod +x deploy.sh && ./deploy.sh deploy
+# Get dynamics from specific UP
+python Original_Code/get_all_dynamics_infinityacademy.py
 
-# Quick deployment (Windows)
-.\deploy.ps1 deploy
-
-# Manual Docker commands
-docker-compose up -d
-docker-compose logs -f bili2text-web
+# Extract references from dynamics
+python Original_Code/get_ref_from_dynamics.py
 ```
 
-### Development Tools
+#### Setup and Utilities
 ```bash
-# Code formatting
-black src/ cli/ webapp/
-isort src/ cli/ webapp/
+# Install dependencies automatically
+python Original_Code/install_dependencies.py
+# or
+bash Original_Code/install_dependencies.sh
 
-# Run tests
-pytest tests/
-
-# Install pre-commit hooks
-pre-commit install
-
-# Code quality analysis
-pylint src/ cli/ webapp/
-mypy src/ cli/ webapp/
-
-# Security scanning
-bandit -r src/ cli/ webapp/
-safety check
-
-# Clean up development files
-find . -name "__pycache__" -type d -exec rm -rf {} +
-find . -name ".DS_Store" -type f -delete
-```
-
-### Refactoring Commands
-```bash
-# Phase 1: Security fixes (Week 1-2)
-# Fix URL validation security
-# Fix file path traversal vulnerabilities
-# Refactor TaskManager methods
-
-# Phase 2: Architecture improvement (Week 3-4)
-# Extract shared transcription service
-# Extract shared download service
-# Implement event bus pattern
-
-# Phase 3: Standardization (Week 5-6)
-# Unify configuration management
-# Standardize error handling
-# Optimize dependency layers
+# Download Whisper models
+python Original_Code/download_whisper_model.py
 ```
 
 ## Architecture Overview
 
-### Dual-Mode Design
-The project implements a shared-core architecture where both web and CLI applications use common libraries from `src/`:
-- **CLI Mode** (`cli/`): Command-line tools for automation and batch processing
-- **Web Mode** (`webapp/`): Full-featured web application with real-time updates
-- **Shared Core** (`src/`): Common transcription, downloading, and utility functions
+### Simple Script Collection
+The project consists of focused, single-purpose scripts in the `Original_Code/` directory:
+- **Core Scripts**: Proven transcription and download functionality
+- **No Complex Architecture**: Each script is self-contained and focused
+- **Direct Approach**: Minimal abstractions, maximum clarity
 
-### Key Components
+### Key Scripts
 
-#### Web Application Structure
-- `webapp/app.py`: Flask application factory with SocketIO integration
-- `webapp/api/routes.py`: RESTful API endpoints for task management
-- `webapp/core/`: Core business logic (task management, file handling, system monitoring)
-- `webapp/static/`: Frontend assets (HTML templates, CSS, JavaScript)
+#### Transcription Scripts
+- `simple_transcribe.py`: Basic transcription functionality
+- `main.py`: Batch processing with file management
+- `transcribe_infinityacademy_audio.py`: Specialized for InfinityAcademy content
 
-#### CLI Tool Structure
-- `cli/main.py`: Unified CLI entry point with subcommands
-- `cli/download_audio.py`: Audio transcription functionality
-- `cli/download_video.py`: Video download functionality
-- `cli/get_dynamics.py`: Dynamic content retrieval
+#### Download Scripts  
+- `download_videos.py`: General video downloading
+- `download_infinityacademy_audio.py`: Audio extraction and downloading
 
-#### Shared Libraries
-- `src/transcriber/`: Whisper-based transcription engine (🔄 Under refactoring)
-- `src/downloader/`: Video/audio download utilities (🔄 Under refactoring) 
-- `src/utils/`: Common utility functions (✅ Path management refactored)
-- `src/models/`: Data models and schemas (🔄 To be implemented)
-- `src/events/`: Event bus for decoupled communication (🔄 To be implemented)
-- `src/exceptions/`: Unified exception handling (🔄 To be implemented)
+#### Content Discovery
+- `get_all_dynamics_infinityacademy.py`: Extract dynamics from UP主
+- `get_ref_from_dynamics.py`: Parse references from dynamic content
 
-### Configuration System
-- `config/app/`: Environment-specific configurations
-- `config/models/`: Whisper model configurations
-- Multiple requirement files for different deployment scenarios
-
-### Real-time Communication
-- WebSocket integration for live progress updates
-- Task status broadcasting to connected clients
-- System monitoring with real-time performance metrics
+#### Utilities
+- `install_dependencies.py/sh`: Dependency management
+- `download_whisper_model.py`: Model downloading
 
 ## Whisper Models Available
 - `tiny`: Fastest, lower accuracy (39MB)
-- `base`: Balanced performance (74MB)
+- `base`: Balanced performance (74MB)  
 - `medium`: Recommended for most use cases (769MB)
 - `large-v3`: Highest accuracy (1550MB)
 
-## Storage Structure
-```
-storage/
-├── audio/     # Downloaded audio files
-├── video/     # Downloaded video files
-├── results/   # Transcription results
-└── temp/      # Temporary processing files
-```
-
-## Database Schema
-- SQLite database with Task, SystemStatus, and TaskStatistics models
-- Automatic database initialization on first run
-- Migration support through SQLAlchemy
+## Storage and Output
+Each script manages its own file organization:
+- Audio files are typically saved to `audio/` subdirectories
+- Results are saved as text files alongside audio files
+- Temporary files are cleaned up automatically
 
 ## Error Handling
-The project implements comprehensive error handling:
-- Frontend: Global error handler with retry mechanisms and user-friendly messages
-- Backend: Unified exception middleware with structured error responses
-- Test page available at `/error-test` for error handling verification
-
-## Refactoring Progress Tracker
-
-### Phase 1: Security & Architecture Fixes (🔄 In Progress)
-- [ ] **P0-1**: Fix URL validation security vulnerabilities
-- [ ] **P0-2**: Fix file path traversal vulnerabilities  
-- [ ] **P0-3**: Refactor TaskManager._process_task method (150+ lines → <30 lines)
-- [ ] **P1-4**: Implement event bus to resolve reverse dependencies
-- [ ] **P1-5**: Extract shared Whisper transcription service
-- [ ] **P1-6**: Extract shared Bilibili download service
-
-### Phase 2: Code Quality & Performance (📋 Planned)
-- [ ] **P1-7**: Implement streaming transcription for large files
-- [ ] **P2-8**: Optimize thread pool configuration
-- [ ] **P2-9**: Unify configuration management system
-- [ ] **P2-10**: Standardize exception handling across modules
-
-### Phase 3: System Optimization (📋 Planned)
-- [ ] **P2-11**: Optimize dependency layers (CLI/Web separation)
-- [ ] **P3-12**: Refactor API layer by business domains
-- [ ] **P3-13**: Modernize frontend JavaScript architecture
-
-### Success Metrics
-- **Code Quality**: Reduce duplication from 15% to <3%
-- **Security**: Zero critical vulnerabilities 
-- **Performance**: 30% memory optimization for large files
-- **Maintainability**: Average method length <25 lines
-- **Test Coverage**: Increase from 0% to 80%
+Scripts include basic error handling:
+- Network retry mechanisms for downloads
+- File existence checks
+- Basic logging to console
 
 ## Development Notes
-- The project supports both development and production modes
-- WebSocket heartbeat and reconnection are handled automatically
-- File cleanup and storage management are automated
-- System monitoring includes CPU, memory, and disk usage tracking
-- Docker deployment includes Nginx reverse proxy and Redis caching
-- **🚧 Refactoring in progress**: Follow the phase-based approach for contributions
+- Each script is designed to be run independently
+- Configuration is typically done through script modification
+- File paths and settings are script-specific
+- Scripts have been tested and proven to work reliably
+- Focus on practical functionality over theoretical architecture
+
+## Getting Started
+1. Clone the repository
+2. Set up Python environment (Python 3.9+)
+3. Install basic dependencies: `pip install openai-whisper yt-dlp requests bilix`
+4. Navigate to `Original_Code/` directory
+5. Run the script that matches your needs
+6. Check the script's output directory for results
+
+## Script Selection Guide
+- **New to the project**: Start with `simple_transcribe.py`
+- **Batch processing**: Use `main.py`
+- **Video downloading**: Use `download_videos.py`
+- **InfinityAcademy content**: Use the specialized `*_infinityacademy_*` scripts
+- **Content discovery**: Use `get_all_dynamics_infinityacademy.py`
+
+The beauty of this approach is that each script does one thing well, and you can easily understand and modify them as needed.
