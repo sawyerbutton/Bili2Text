@@ -29,9 +29,10 @@ from datetime import datetime
 from pathlib import Path
 import logging
 
-# 添加项目根目录到Python路径
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# 初始化项目路径管理  
+from src.utils import setup_project_paths
+path_manager = setup_project_paths()
+project_root = path_manager.project_root
 
 try:
     import torch

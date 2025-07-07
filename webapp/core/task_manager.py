@@ -11,11 +11,13 @@ import time
 import subprocess
 import json
 import logging
+from pathlib import Path
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# 添加项目根目录到Python路径
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+# 初始化项目路径管理
+from src.utils import setup_project_paths
+setup_project_paths()
 
 try:
     import whisper
@@ -166,8 +168,8 @@ class TaskManager:
                 self._cleanup_files(audio_path)
             
             # 获取文件大小
-            if os.path.exists(result_path):
-                task.file_size = os.path.getsize(result_path)
+            if result_path.exists():
+                task.file_size = result_path.stat().st_size
             
             # 更新任务状态为完成
             task.update_status('completed', progress=100, stage='转录完成')
@@ -197,12 +199,14 @@ class TaskManager:
         try:
             from flask import current_app
             
-            # 创建任务目录
-            task_dir = os.path.join(current_app.config['AUDIO_STORAGE_PATH'], task.task_id)
-            os.makedirs(task_dir, exist_ok=True)
+            # 创建任务目录（使用路径管理器）
+            from src.utils import get_storage_path
+            storage_path = get_storage_path()
+            task_dir = storage_path / 'audio' / task.task_id
+            task_dir.mkdir(parents=True, exist_ok=True)
             
             # 音频输出路径
-            audio_path = os.path.join(task_dir, 'audio.m4a')
+            audio_path = task_dir / 'audio.m4a'
             
             # 构建yt-dlp命令
             cmd = [
@@ -210,7 +214,7 @@ class TaskManager:
                 '--extract-audio',
                 '--audio-format', 'm4a',
                 '--audio-quality', '0',
-                '--output', audio_path.replace('.m4a', '.%(ext)s'),
+                '--output', str(audio_path).replace('.m4a', '.%(ext)s'),
                 '--write-info-json',
                 '--no-playlist'
             ]
@@ -230,13 +234,13 @@ class TaskManager:
                 raise Exception(f"下载失败: {result.stderr}")
             
             # 检查音频文件是否存在
-            if not os.path.exists(audio_path):
+            if not audio_path.exists():
                 raise Exception("音频文件下载失败")
             
             # 读取视频信息
-            info_path = audio_path.replace('.m4a', '.info.json')
+            info_path = audio_path.with_suffix('.info.json')
             video_info = {}
-            if os.path.exists(info_path):
+            if info_path.exists():
                 try:
                     with open(info_path, 'r', encoding='utf-8') as f:
                         info_data = json.load(f)
@@ -249,7 +253,7 @@ class TaskManager:
                             'description': info_data.get('description', '')[:500]  # 限制描述长度
                         }
                     # 删除信息文件
-                    os.remove(info_path)
+                    info_path.unlink()
                 except Exception as e:
                     logger.warning(f"读取视频信息失败: {e}")
             
@@ -266,9 +270,11 @@ class TaskManager:
         try:
             from flask import current_app
             
-            # 创建结果目录
-            result_dir = os.path.join(current_app.config['RESULT_STORAGE_PATH'], task.task_id)
-            os.makedirs(result_dir, exist_ok=True)
+            # 创建结果目录（使用路径管理器）
+            from src.utils import get_storage_path
+            storage_path = get_storage_path()
+            result_dir = storage_path / 'results' / task.task_id
+            result_dir.mkdir(parents=True, exist_ok=True)
             
             options = task.get_options()
             output_format = options.get('output_format', 'txt')
@@ -306,7 +312,7 @@ class TaskManager:
             result = model.transcribe(audio_path, **transcribe_options)
             
             # 保存结果
-            result_path = os.path.join(result_dir, f'result.{output_format}')
+            result_path = result_dir / f'result.{output_format}'
             
             if output_format == 'txt':
                 with open(result_path, 'w', encoding='utf-8') as f:
@@ -351,7 +357,7 @@ class TaskManager:
                 time.sleep(1)  # 模拟处理时间
             
             # 生成模拟结果
-            result_path = os.path.join(result_dir, f'result.{output_format}')
+            result_path = result_dir / f'result.{output_format}'
             
             mock_text = f"""这是一个模拟的转录结果。
 
@@ -414,12 +420,15 @@ class TaskManager:
     def _cleanup_files(self, *file_paths):
         """清理文件"""
         for file_path in file_paths:
-            if file_path and os.path.exists(file_path):
-                try:
-                    os.remove(file_path)
-                    logger.info(f"已删除文件: {file_path}")
-                except Exception as e:
-                    logger.warning(f"删除文件失败 {file_path}: {e}")
+            if file_path:
+                # 支持字符串和Path对象
+                path_obj = Path(file_path) if not isinstance(file_path, Path) else file_path
+                if path_obj.exists():
+                    try:
+                        path_obj.unlink()
+                        logger.info(f"已删除文件: {path_obj}")
+                    except Exception as e:
+                        logger.warning(f"删除文件失败 {path_obj}: {e}")
     
     def _broadcast_update(self, task_id, status, progress=None, stage=None, error=None):
         """广播任务更新"""

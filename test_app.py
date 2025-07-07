@@ -90,8 +90,9 @@ def test_app_creation():
     print("\n🚀 测试应用创建...")
     
     try:
-        # 添加项目根目录到Python路径
-        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        # 初始化项目路径管理
+        from src.utils import setup_project_paths
+        setup_project_paths()
         
         from webapp.app import create_app
         app = create_app()
