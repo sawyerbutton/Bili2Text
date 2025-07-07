@@ -32,6 +32,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# PromptX 配置目录
+.promptx/
+
 # Whisper模型缓存
 .cache/whisper/
 
