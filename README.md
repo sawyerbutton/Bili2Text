@@ -9,17 +9,17 @@
 
 **简洁而强大的哔哩哔哩视频转录工具集，基于OpenAI Whisper技术**
 
-[🚀 快速开始](#-快速开始) • [📖 脚本指南](#-脚本指南) • [🛠️ 开发说明](#-开发说明)
+[🚀 快速开始](#-快速开始) • [📖 使用指南](#-使用指南) • [🛠️ 开发说明](#-开发说明)
 
 </div>
 
 ## ✨ 项目特色
 
-### 🎯 简洁专注的设计理念
-- 🎯 **功能专一**: 每个脚本专注解决一个具体问题
-- ⚡ **即用即走**: 无需复杂配置，开箱即用
-- 🔧 **易于定制**: 代码清晰，便于理解和修改
-- 🧪 **经过验证**: 所有脚本都经过实际使用验证
+### 🎯 清晰的项目架构
+- 🚀 **v2 现代化版本**: 模块化设计，功能完整，易于维护
+- 📂 **Legacy 兼容支持**: 保留所有原版脚本，向后兼容
+- 🔧 **专业项目结构**: 清晰分离新旧代码，便于理解和贡献
+- ⚡ **统一CLI接口**: 一个命令访问所有功能
 
 ### 🎥 核心功能
 - 🎙️ **智能语音识别** - 基于OpenAI Whisper，支持多种模型
@@ -43,6 +43,41 @@
 - **存储**: SSD硬盘
 - **GPU**: NVIDIA GPU (可选，加速Whisper转录)
 
+## 📁 项目结构
+
+```
+Bili2Text/
+├── README.md                      # 📖 项目说明文档
+├── CLAUDE.md                      # 🤖 Claude开发指南
+├── LICENSE                        # ⚖️ 开源协议
+│
+├── bili2text_v2/                  # 🚀 现代化版本 (推荐使用)
+│   ├── bili2text.py               #   统一CLI入口
+│   ├── simple_transcribe.py       #   简单转录脚本
+│   ├── core/                      #   🔧 核心模块
+│   │   ├── whisper_transcriber.py #     转录引擎
+│   │   ├── bilibili_downloader.py #     下载器
+│   │   ├── markdown_generator.py  #     输出生成器
+│   │   └── file_manager.py        #     文件管理器
+│   ├── workflows/                 #   ⚡ 工作流
+│   │   ├── batch_transcribe.py    #     批量转录
+│   │   ├── infinity_workflow.py   #     InfinityAcademy专用
+│   │   └── ref_info_workflow.py   #     参考信息系列
+│   └── tools/                     #   🛠️ 工具
+│       ├── setup.py               #     项目设置
+│       └── model_downloader.py    #     模型管理
+│
+└── legacy/                        # 📂 Legacy版本 (兼容保留)
+    ├── README.md                  #   Legacy文档
+    ├── main.py                    #   原版主程序
+    ├── simple_transcribe.py       #   基础转录
+    ├── download_videos.py         #   视频下载
+    ├── transcribe_infinityacademy_audio.py  # 专用转录
+    ├── get_all_dynamics_infinityacademy.py # 动态获取
+    ├── install_dependencies.py    #   依赖安装
+    └── ... (其他Legacy脚本)
+```
+
 ## 🚀 快速开始
 
 ### 1. 获取项目
@@ -59,98 +94,122 @@ source venv/bin/activate  # Linux/macOS
 # 或 venv\Scripts\activate  # Windows
 ```
 
-### 3. 安装依赖
+### 3. 安装依赖 (v2 版本 - 推荐)
 ```bash
-# 自动安装依赖
-python Original_Code/install_dependencies.py
+# 一键安装和设置
+python bili2text_v2/tools/setup.py
 
-# 或手动安装
-pip install openai-whisper yt-dlp requests bilix
+# 或指定模型
+python bili2text_v2/tools/setup.py --model medium
 ```
 
 ### 4. 开始使用
+
+#### 🚀 v2 版本 (推荐)
 ```bash
-# 进入脚本目录
-cd Original_Code
+# 统一CLI接口
+python bili2text_v2/bili2text.py setup    # 设置
+python bili2text_v2/bili2text.py simple   # 简单转录测试
+python bili2text_v2/bili2text.py batch    # 批量处理
 
-# 简单转录测试
-python simple_transcribe.py
-
-# 批量处理
-python main.py
+# 直接运行
+python bili2text_v2/simple_transcribe.py
 ```
 
-## 📖 脚本指南
-
-### 🎯 核心转录脚本
-
-#### `simple_transcribe.py` - 基础转录
-**用途**: 简单的视频转录功能
-**适用场景**: 初次使用、单个视频处理
+#### 📂 Legacy 版本 (兼容)
 ```bash
-python simple_transcribe.py
+# 传统方式
+python legacy/install_dependencies.py
+python legacy/simple_transcribe.py
+python legacy/main.py
 ```
 
-#### `main.py` - 批量转录
-**用途**: 批量处理多个视频的转录
-**适用场景**: 大量视频处理、日常使用
+## 📖 使用指南
+
+### 🎯 v2 版本功能 (推荐)
+
+#### 统一CLI界面
 ```bash
-python main.py
+# 项目设置
+python bili2text_v2/bili2text.py setup
+python bili2text_v2/bili2text.py setup --model medium
+
+# 转录功能
+python bili2text_v2/bili2text.py simple      # 简单测试
+python bili2text_v2/bili2text.py batch       # 批量处理
+python bili2text_v2/bili2text.py infinity    # InfinityAcademy工作流
+python bili2text_v2/bili2text.py ref-info    # 参考信息系列
+
+# 模型管理
+python bili2text_v2/bili2text.py model --list
+python bili2text_v2/bili2text.py model --download medium
 ```
 
-#### `transcribe_infinityacademy_audio.py` - 专用转录
-**用途**: 专门为InfinityAcademy UP主内容优化
-**适用场景**: 处理特定UP主的视频内容
+#### 直接模块调用
 ```bash
-python transcribe_infinityacademy_audio.py
+# 核心脚本
+python bili2text_v2/simple_transcribe.py
+
+# 工作流
+python bili2text_v2/workflows/batch_transcribe.py
+python bili2text_v2/workflows/infinity_workflow.py
+python bili2text_v2/workflows/ref_info_workflow.py
+
+# 工具
+python bili2text_v2/tools/setup.py
+python bili2text_v2/tools/model_downloader.py --list
 ```
 
-### 📥 视频下载脚本
-
-#### `download_videos.py` - 通用下载
-**用途**: 下载B站视频为MP4格式
-**适用场景**: 视频收藏、离线观看
+#### 高级工作流
 ```bash
-python download_videos.py
+# InfinityAcademy 高级选项
+python bili2text_v2/workflows/infinity_workflow.py --mode download    # 仅下载
+python bili2text_v2/workflows/infinity_workflow.py --mode transcribe  # 仅转录
+
+# 参考信息系列
+python bili2text_v2/workflows/ref_info_workflow.py --target latest    # 最新视频
+python bili2text_v2/workflows/ref_info_workflow.py --target BV1234567890  # 指定视频
 ```
 
-#### `download_infinityacademy_audio.py` - 音频下载
-**用途**: 下载并提取音频用于转录
-**适用场景**: 仅需要音频内容的场景
+### 📂 Legacy 版本功能 (兼容支持)
+
+#### 核心转录脚本
 ```bash
-python download_infinityacademy_audio.py
+# 基础转录
+python legacy/simple_transcribe.py
+
+# 批量转录
+python legacy/main.py
+
+# 专用转录
+python legacy/transcribe_infinityacademy_audio.py
 ```
 
-### 🔍 内容发现脚本
-
-#### `get_all_dynamics_infinityacademy.py` - 动态获取
-**用途**: 获取UP主的动态内容
-**适用场景**: 发现新内容、批量收集
+#### 视频下载脚本
 ```bash
-python get_all_dynamics_infinityacademy.py
+# 通用下载
+python legacy/download_videos.py
+
+# 音频下载
+python legacy/download_infinityacademy_audio.py
 ```
 
-#### `get_ref_from_dynamics.py` - 引用提取
-**用途**: 从动态中提取视频引用链接
-**适用场景**: 自动化内容发现
+#### 内容发现脚本
 ```bash
-python get_ref_from_dynamics.py
+# 动态获取
+python legacy/get_all_dynamics_infinityacademy.py
+
+# 引用提取
+python legacy/get_ref_from_dynamics.py
 ```
 
-### 🛠️ 工具脚本
-
-#### `install_dependencies.py` - 依赖安装
-**用途**: 自动安装所需的Python包
-**适用场景**: 环境初始化
+#### 工具脚本
 ```bash
-python install_dependencies.py
-```
+# 依赖安装
+python legacy/install_dependencies.py
 
-#### `download_whisper_model.py` - 模型下载
-**用途**: 预下载Whisper模型
-**适用场景**: 离线使用准备
-```bash
-python download_whisper_model.py
+# 模型下载
+python legacy/download_whisper_model.py
 ```
 
 ## 🎛️ Whisper模型选择
@@ -162,33 +221,21 @@ python download_whisper_model.py
 | `medium` | 769MB | ⭐⭐⭐ | ⭐⭐⭐⭐ | **推荐使用** |
 | `large-v3` | 1550MB | ⭐⭐ | ⭐⭐⭐⭐⭐ | 最高质量 |
 
-## 📁 项目结构
-
-```
-Bili2Text/
-├── Original_Code/                 # 🎯 核心脚本集合
-│   ├── simple_transcribe.py       # 基础转录功能
-│   ├── main.py                    # 批量转录处理
-│   ├── download_videos.py         # 视频下载工具
-│   ├── download_infinityacademy_audio.py  # 音频下载
-│   ├── transcribe_infinityacademy_audio.py # 专用转录
-│   ├── get_all_dynamics_infinityacademy.py # 动态获取
-│   ├── get_ref_from_dynamics.py   # 引用提取
-│   ├── install_dependencies.py    # 依赖安装
-│   ├── install_dependencies.sh    # Shell依赖安装
-│   ├── download_whisper_model.py  # 模型下载
-│   └── README_InfinityAcademy.md  # InfinityAcademy使用说明
-├── .gitignore                     # Git忽略规则
-├── LICENSE                        # 开源协议
-├── README.md                      # 项目说明
-└── CLAUDE.md                      # Claude开发指南
-```
-
 ## 🛠️ 开发说明
 
-### 脚本定制
-每个脚本都可以通过修改脚本内的配置变量来定制行为：
+### v2 架构优势
+- **模块化设计**: 核心功能独立，易于维护
+- **统一接口**: 一个CLI访问所有功能
+- **无重复代码**: 共享核心模块
+- **易于扩展**: 添加新工作流简单
+- **专业结构**: 符合Python项目规范
 
+### Legacy 兼容性
+- **完全保留**: 所有原版脚本继续可用
+- **向后兼容**: 现有用户无需立即迁移
+- **渐进升级**: 可以逐步迁移到v2版本
+
+### 脚本定制 (两个版本通用)
 ```python
 # 示例：修改Whisper模型
 WHISPER_MODEL = "medium"  # 可改为 "tiny", "base", "large-v3"
@@ -200,32 +247,39 @@ OUTPUT_DIR = "./results"  # 自定义输出路径
 MAX_WORKERS = 3  # 根据系统性能调整
 ```
 
-### 添加新功能
-1. 复制最相似的现有脚本
-2. 修改核心逻辑部分
-3. 调整配置参数
-4. 测试功能
-5. 更新文档
-
-### 调试技巧
-- 启用详细日志输出
-- 使用小文件测试
-- 检查网络连接
-- 确认模型文件存在
+### 版本选择建议
+- **新用户**: 推荐使用 `bili2text_v2/` 版本
+- **现有用户**: 可继续使用 `legacy/` 版本，或逐步迁移
+- **开发贡献**: 建议基于 `bili2text_v2/` 版本进行
 
 ## 🔧 常见问题
 
+### Q: 应该选择哪个版本？
+A: 新用户推荐 v2 版本 (`bili2text_v2/`)，现有用户可以继续使用 Legacy 版本
+
+### Q: v2 版本和 Legacy 版本有什么区别？
+A: v2 版本采用模块化架构，代码更清晰，功能更强大；Legacy 版本保持原有简洁特性
+
 ### Q: Whisper模型下载失败？
-A: 使用 `download_whisper_model.py` 预下载，或检查网络连接
+A: 使用对应版本的模型下载工具，或检查网络连接
 
-### Q: 音频转录结果为空？
-A: 检查音频文件是否有效，尝试较小的模型
+### Q: 两个版本可以同时使用吗？
+A: 可以，两个版本完全独立，不会相互冲突
 
-### Q: 下载视频失败？
-A: 确认视频链接有效，检查网络连接
+## 🚀 迁移指南
 
-### Q: 脚本运行报错？
-A: 检查Python版本和依赖安装，查看错误日志
+### 从 Legacy 到 v2
+1. **环境设置**: `python bili2text_v2/tools/setup.py`
+2. **测试功能**: `python bili2text_v2/simple_transcribe.py`
+3. **熟悉CLI**: `python bili2text_v2/bili2text.py --help`
+4. **逐步迁移**: 根据需要迁移具体功能
+
+### v2 版本特有功能
+- 统一CLI接口
+- 模块化工作流
+- 更好的错误处理
+- 专业项目结构
+- 更易于扩展
 
 ## 🤝 贡献指南
 
@@ -235,7 +289,15 @@ A: 检查Python版本和依赖安装，查看错误日志
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 创建 Pull Request
 
+**开发建议**: 新功能请基于 `bili2text_v2/` 版本开发
+
 ## 📜 更新日志
+
+### v3.0.0 - 清晰架构版本
+- 🏗️ **项目重构**: 清晰分离 v2 和 Legacy 版本
+- 🚀 **v2 版本**: 现代化模块架构，统一CLI接口
+- 📂 **Legacy 保留**: 完整保留原版脚本，向后兼容
+- 📖 **文档更新**: 全面更新文档，突出版本选择
 
 ### v2.0.0 - 简化重构版本
 - 🧹 **项目简化**: 移除复杂架构，专注核心功能
@@ -266,6 +328,6 @@ A: 检查Python版本和依赖安装，查看错误日志
 
 [报告问题](../../issues) • [功能请求](../../issues) • [讨论](../../discussions)
 
-**简洁 • 专注 • 有效**
+**专业 • 清晰 • 高效**
 
 </div>
