@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__promptx__promptx_init",
+      "mcp__promptx__promptx_action",
+      "mcp__promptx__promptx_remember"
+    ],
+    "deny": []
+  }
+}

@@ -35,10 +35,15 @@ from bilix.sites.bilibili import DownloaderBilibili
 
 # 配置要处理的视频URL列表
 video_urls = [
-    "https://www.bilibili.com/video/BV1LCM3zwEH9/?spm_id_from=333.1391.0.0",
-    # 可以在这里添加更多视频URL
-    # "https://www.bilibili.com/video/BVXXXXXXX",
-    # "https://www.bilibili.com/video/BVXXXXXXX",
+    "https://www.bilibili.com/video/BV1aD3EznERn/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1gB39zjEpk/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1Rn3BzkEnY/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1Bb32zuET7/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1HM37zcErp/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1Mq3QzuEm9/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1ko39zPEgh/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1H93kziE1n/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363",
+    "https://www.bilibili.com/video/BV1Zt3yzwEg3/?spm_id_from=333.1387.homepage.video_card.click&vd_source=41395574d05172f2bcc7dfec3acf5363"
 ]
 
 

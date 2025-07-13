@@ -25,6 +25,7 @@
 - 🎙️ **智能语音识别** - 基于OpenAI Whisper，支持多种模型
 - 📹 **视频下载** - 支持B站视频下载为MP4格式
 - 🎵 **音频转录** - 提取视频音频并转录为文字
+- 🎵 **音频下载** - 支持AAC和MP3格式音频下载（需要ffmpeg）
 - 📝 **文本输出** - 多种文本格式输出
 - 🔄 **批量处理** - 支持批量视频处理
 - 📊 **UP主内容发现** - 获取UP主动态和视频列表
@@ -36,6 +37,7 @@
 - **内存**: 4GB+ (使用larger模型需要更多内存)
 - **存储**: 根据处理视频数量而定
 - **操作系统**: Windows, macOS, Linux
+- **ffmpeg**: 可选，用于音频格式转换（MP3输出）
 
 ### 🚀 推荐配置
 - **内存**: 16GB+ RAM
@@ -72,6 +74,7 @@ Bili2Text/
     ├── main.py                    #   原版主程序
     ├── simple_transcribe.py       #   基础转录
     ├── download_videos.py         #   视频下载
+    ├── download_audio.py          #   音频下载（AAC/MP3）
     ├── transcribe_infinityacademy_audio.py  # 专用转录
     ├── get_all_dynamics_infinityacademy.py # 动态获取
     ├── install_dependencies.py    #   依赖安装
@@ -190,7 +193,10 @@ python legacy/transcribe_infinityacademy_audio.py
 # 通用下载
 python legacy/download_videos.py
 
-# 音频下载
+# 音频下载（支持AAC和MP3格式）
+python legacy/download_audio.py
+
+# InfinityAcademy专用音频下载
 python legacy/download_infinityacademy_audio.py
 ```
 
@@ -266,6 +272,12 @@ A: 使用对应版本的模型下载工具，或检查网络连接
 ### Q: 两个版本可以同时使用吗？
 A: 可以，两个版本完全独立，不会相互冲突
 
+### Q: 如何安装ffmpeg用于音频格式转换？
+A: 
+- Windows: 下载ffmpeg并添加到系统PATH
+- macOS: `brew install ffmpeg`
+- Linux: `sudo apt-get install ffmpeg` 或 `sudo yum install ffmpeg`
+
 ## 🚀 迁移指南
 
 ### 从 Legacy 到 v2
@@ -292,6 +304,12 @@ A: 可以，两个版本完全独立，不会相互冲突
 **开发建议**: 新功能请基于 `bili2text_v2/` 版本开发
 
 ## 📜 更新日志
+
+### v3.1.0 - 音频下载增强版本
+- 🎵 **新增功能**: Legacy版本新增音频下载脚本 `download_audio.py`
+- 🔄 **格式支持**: 支持同时输出AAC和MP3格式（需要ffmpeg）
+- 📊 **状态管理**: 完善的下载状态记录和错误处理
+- 🔧 **配置优化**: 支持外部配置文件和并发控制
 
 ### v3.0.0 - 清晰架构版本
 - 🏗️ **项目重构**: 清晰分离 v2 和 Legacy 版本
