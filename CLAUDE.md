@@ -49,7 +49,8 @@ Bili2Text/
     ├── README_InfinityAcademy.md  #   InfinityAcademy specific docs
     ├── main.py                    #   Original main script
     ├── download_videos.py         #   Video download script
-    ├── download_infinityacademy_audio.py  # Audio download script
+    ├── download_audio.py          #   Audio download script (AAC/MP3)
+    ├── download_infinityacademy_audio.py  # InfinityAcademy audio download
     ├── transcribe_infinityacademy_audio.py # Transcription script
     ├── get_all_dynamics_infinityacademy.py # Dynamics fetcher
     ├── get_ref_from_dynamics.py   #   Reference extractor
@@ -72,6 +73,18 @@ python bili2text_v2/tools/setup.py
 # or with specific Whisper model
 python bili2text_v2/tools/setup.py --model medium
 ```
+
+### Dependencies
+Core Python packages required:
+- `openai-whisper` - Speech recognition engine
+- `torch`, `torchaudio` - PyTorch for Whisper
+- `bilix>=0.18.5` - Bilibili video/audio download
+- `bilibili-api-python` - Bilibili API client
+- `aiohttp`, `requests` - HTTP clients
+- `PyYAML>=6.0` - YAML configuration support
+
+Optional dependencies:
+- `ffmpeg` - Required for audio format conversion (MP3 output in legacy/download_audio.py)
 
 ### 🎯 New Modular Architecture Usage (v2)
 
@@ -144,6 +157,7 @@ python bili2text_v2/workflows/ref_info_workflow.py --target BV1234567890
 # Original scripts are still available for compatibility
 python legacy/main.py
 python legacy/download_videos.py
+python legacy/download_audio.py  # New: AAC/MP3 audio download
 python legacy/transcribe_infinityacademy_audio.py
 python legacy/get_all_dynamics_infinityacademy.py
 python legacy/get_ref_from_dynamics.py
@@ -226,14 +240,26 @@ bili2text_v2/
 ## Storage and Output
 Each script manages its own file organization:
 - Audio files are typically saved to `audio/` subdirectories
+  - Legacy `download_audio.py` creates `audio/aac/` and `audio/mp3/` subdirectories
+- Video files are saved to `video/` directory
 - Results are saved as text files alongside audio files
-- Temporary files are cleaned up automatically
+- Temporary files are saved to `temp/` and cleaned up automatically
+- Status logs are saved to `status/` directory (legacy scripts)
 
 ## Error Handling
 Scripts include basic error handling:
 - Network retry mechanisms for downloads
 - File existence checks
 - Basic logging to console
+- Status tracking and recovery (legacy/download_audio.py)
+
+## Configuration Points
+Common modifications needed in scripts:
+- **Video/Audio URLs**: Look for `video_urls` or `audio_urls` list at the top of scripts
+- **Whisper Model**: Search for `WHISPER_MODEL` variable (default: "medium")
+- **Output Formats**: In legacy/download_audio.py, modify `DOWNLOAD_CONFIG["output_formats"]`
+- **Concurrent Downloads**: Adjust `MAX_WORKERS` or `concurrent_downloads` settings
+- **Audio Quality**: Set bitrate in `DOWNLOAD_CONFIG["audio_quality"]` (e.g., "192k")
 
 ## Development Notes
 - Each script is designed to be run independently
@@ -241,6 +267,7 @@ Scripts include basic error handling:
 - File paths and settings are script-specific
 - Scripts have been tested and proven to work reliably
 - Focus on practical functionality over theoretical architecture
+- Legacy scripts maintain backward compatibility while v2 provides modern architecture
 
 ## Getting Started
 
@@ -276,6 +303,7 @@ Scripts include basic error handling:
 - **Legacy main**: `python legacy/main.py`
 - **Legacy setup**: `python legacy/install_dependencies.py`
 - **Legacy InfinityAcademy**: `python legacy/transcribe_infinityacademy_audio.py`
+- **Legacy audio download**: `python legacy/download_audio.py` (supports AAC/MP3 formats)
 
 ### 🎯 Benefits of New Architecture
 - **Clear separation**: New vs legacy code clearly organized
@@ -301,5 +329,11 @@ Scripts include basic error handling:
 ## Important File Paths
 - **New code**: All in `bili2text_v2/` directory
 - **Legacy code**: All in `legacy/` directory  
-- **Working directories**: Created at project root (audio/, video/, result/, temp/)
+- **Working directories**: Created at project root
+  - `audio/` - Downloaded audio files (with `aac/` and `mp3/` subdirs for legacy/download_audio.py)
+  - `video/` - Downloaded video files
+  - `result/` - Transcription results
+  - `temp/` - Temporary download files
+  - `status/` - Download status logs (legacy scripts)
 - **Model cache**: `.cache/whisper/` in project root
+- **Logs**: `audio_download.log` for legacy audio download script

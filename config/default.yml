@@ -1,0 +1,48 @@
+# Bili2Text 默认配置文件
+# 可以通过环境变量或创建 config.yml 来覆盖这些设置
+
+app_name: Bili2Text
+version: 3.1.0
+debug: false
+
+# Whisper 模型配置
+whisper:
+  model_name: medium      # 可选: tiny, base, small, medium, large, large-v2, large-v3
+  device: null           # null 表示自动选择 (cuda/cpu)
+  language: zh           # 转录语言
+  initial_prompt: "简体中文,加上标点"
+  cache_dir: .cache/whisper
+
+# 下载配置
+download:
+  proxy_url: null        # 代理URL，null表示不使用代理
+  concurrent_downloads: 3
+  timeout: 300           # 秒
+  retry_times: 3
+  only_audio: true       # 仅下载音频
+  audio_quality: "192k"  # 音频比特率
+
+# 存储配置
+storage:
+  base_dir: "."
+  audio_dir: audio
+  video_dir: video
+  result_dir: result
+  temp_dir: temp
+  status_dir: status
+
+# 日志配置
+logging:
+  level: INFO            # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: null        # null 表示不输出到文件
+  max_bytes: 10485760    # 10MB
+  backup_count: 5
+
+# 工作流配置
+workflow:
+  batch_size: 10
+  skip_downloaded: true   # 跳过已下载的文件
+  skip_transcribed: true  # 跳过已转录的文件
+  output_format: txt      # 输出格式: txt, md, json, srt
+  save_segments: false    # 是否保存时间戳片段

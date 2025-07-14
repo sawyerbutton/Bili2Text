@@ -34,12 +34,18 @@
 
 ### 新的模块化架构 (v2.0.0)
 ```
-Original_Code/
+bili2text_v2/
 ├── core/                    # 🔧 核心模块
 ├── workflows/               # ⚡ 高级工作流
 ├── tools/                   # 🛠️ 管理工具
 ├── simple_transcribe.py     # 📝 简化入口脚本
-└── legacy/                  # 📂 历史脚本（本目录）
+└── bili2text.py            # 🎯 统一CLI入口
+
+legacy/                      # 📂 历史脚本（本目录）
+├── experimental/           # 🧪 实验性代码
+│   ├── whisperx/          # WhisperX相关实验
+│   └── install/           # 安装脚本变种
+└── （核心功能脚本）        # 经过验证的功能脚本
 ```
 
 ### 解决的问题

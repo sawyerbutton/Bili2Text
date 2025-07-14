@@ -66,6 +66,13 @@ config/app/development.env
 .env.production
 .env.development
 download_config.json
+config.yml
+config.yaml
+config.json
+config.*.yml
+config.*.yaml
+config.*.json
+!config/default.yml
 
 # ===============================================
 # Python 通用忽略文件
@@ -270,7 +277,19 @@ $RECYCLE.BIN/
 *.tmp
 *.temp
 temp_*
-test_*
+
+# 测试文件 - 必须放在tests/目录下
+/test_*.py
+/simple_*test*.py
+/batch_*test*.py
+/*_test.py
+/fix_*.py
+
+# 测试结果文件
+/*_result.txt
+/*_results/
+/test_*/
+/transcripts_*/
 
 # 备份文件
 *.bak
