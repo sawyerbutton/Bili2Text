@@ -28,6 +28,7 @@ Bili2Text/
 ├── bili2text_v2/                  # 🚀 Modern modular code (NEW)
 │   ├── bili2text.py               #   Main CLI entry point
 │   ├── simple_transcribe.py       #   Simple transcription script
+│   ├── transcribe_video.py        #   Local video transcription script
 │   ├── core/                      #   🔧 Reusable core modules
 │   │   ├── __init__.py
 │   │   ├── whisper_transcriber.py #     Unified transcription logic
@@ -110,6 +111,10 @@ python bili2text_v2/bili2text.py ref-info
 ```bash
 # Simple transcription test
 python bili2text_v2/simple_transcribe.py
+
+# Local video transcription
+python bili2text_v2/transcribe_video.py "video/example.mp4"
+python bili2text_v2/transcribe_video.py "video/example.mp4" --model base --language en
 
 # Batch transcription workflow
 python bili2text_v2/workflows/batch_transcribe.py

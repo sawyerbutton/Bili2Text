@@ -26,6 +26,8 @@
 - 📹 **视频下载** - 支持B站视频下载为MP4格式
 - 🎵 **音频转录** - 提取视频音频并转录为文字
 - 🎵 **音频下载** - 支持AAC和MP3格式音频下载（需要ffmpeg）
+- 🎬 **本地视频转录** - 支持本地视频文件（MP4等）直接转录
+- 🌐 **自动语言检测** - 智能检测音频语言，支持多语言转录
 - 📝 **文本输出** - 多种文本格式输出
 - 🔄 **批量处理** - 支持批量视频处理
 - 📊 **UP主内容发现** - 获取UP主动态和视频列表
@@ -56,6 +58,7 @@ Bili2Text/
 ├── bili2text_v2/                  # 🚀 现代化版本 (推荐使用)
 │   ├── bili2text.py               #   统一CLI入口
 │   ├── simple_transcribe.py       #   简单转录脚本
+│   ├── transcribe_video.py        #   本地视频转录脚本
 │   ├── core/                      #   🔧 核心模块
 │   │   ├── whisper_transcriber.py #     转录引擎
 │   │   ├── bilibili_downloader.py #     下载器
@@ -153,6 +156,12 @@ python bili2text_v2/bili2text.py model --download medium
 # 核心脚本
 python bili2text_v2/simple_transcribe.py
 
+# 本地视频转录
+python bili2text_v2/transcribe_video.py "video/example.mp4"
+python bili2text_v2/transcribe_video.py "video/example.mp4" --model base
+python bili2text_v2/transcribe_video.py "video/example.mp4" --language en
+python bili2text_v2/transcribe_video.py "video/example.mp4" --output ./my_results
+
 # 工作流
 python bili2text_v2/workflows/batch_transcribe.py
 python bili2text_v2/workflows/infinity_workflow.py
@@ -162,6 +171,32 @@ python bili2text_v2/workflows/ref_info_workflow.py
 python bili2text_v2/tools/setup.py
 python bili2text_v2/tools/model_downloader.py --list
 ```
+
+#### 本地视频转录功能 (新增)
+```bash
+# 基础用法 - 自动检测语言
+python bili2text_v2/transcribe_video.py "path/to/video.mp4"
+
+# 指定语言（提高准确度）
+python bili2text_v2/transcribe_video.py "video.mp4" --language en    # 英文
+python bili2text_v2/transcribe_video.py "video.mp4" --language zh    # 中文
+python bili2text_v2/transcribe_video.py "video.mp4" --language ja    # 日文
+
+# 选择不同模型
+python bili2text_v2/transcribe_video.py "video.mp4" --model tiny     # 最快
+python bili2text_v2/transcribe_video.py "video.mp4" --model base     # 平衡
+python bili2text_v2/transcribe_video.py "video.mp4" --model medium   # 推荐
+python bili2text_v2/transcribe_video.py "video.mp4" --model large-v3 # 最准确
+
+# 自定义输出目录
+python bili2text_v2/transcribe_video.py "video.mp4" --output ./transcripts
+
+# 组合参数
+python bili2text_v2/transcribe_video.py "video.mp4" --model base --language en --output ./results
+```
+
+**支持的视频格式**: MP4, AVI, MOV, MKV, FLV, WebM, WMV等
+**支持的语言**: 自动检测或手动指定（en, zh, ja, ko, es, fr, de, ru等）
 
 #### 高级工作流
 ```bash
@@ -304,6 +339,12 @@ A:
 **开发建议**: 新功能请基于 `bili2text_v2/` 版本开发
 
 ## 📜 更新日志
+
+### v3.2.0 - 本地视频转录增强版本
+- 🎬 **新增功能**: v2版本新增本地视频转录脚本 `transcribe_video.py`
+- 🌐 **语言检测**: 支持自动语言检测和手动语言指定
+- 📹 **格式支持**: 支持MP4、AVI、MOV、MKV等多种视频格式
+- 🎯 **灵活配置**: 支持模型选择、输出目录自定义等参数
 
 ### v3.1.0 - 音频下载增强版本
 - 🎵 **新增功能**: Legacy版本新增音频下载脚本 `download_audio.py`
