@@ -51,7 +51,42 @@
 
 ## 🚀 快速开始
 
-### 方法一：Docker 部署（推荐）
+### 方法一：使用Conda环境（推荐CLI工具）
+
+#### 1. 安装Miniconda
+```bash
+# Linux/macOS
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda3
+export PATH="$HOME/miniconda3/bin:$PATH"
+
+# Windows
+# 下载并安装 Miniconda3-latest-Windows-x86_64.exe
+```
+
+#### 2. 创建并激活环境
+```bash
+# 创建专用环境
+conda create -n bili2text-cli python=3.11 -y
+conda activate bili2text-cli
+
+# 安装依赖包
+pip install bilibili-api-python bilix httpx beautifulsoup4 lxml
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip install openai-whisper
+```
+
+#### 3. 设置快捷命令
+```bash
+# Linux/macOS
+chmod +x bili2text.sh
+./bili2text.sh --help
+
+# Windows
+# 使用 python -m cli.main 替代
+```
+
+### 方法二：Docker 部署（推荐Web应用）
 
 ```bash
 # 克隆项目
@@ -65,7 +100,7 @@ docker-compose up -d
 open http://localhost
 ```
 
-### 方法二：源码安装
+### 方法三：源码安装
 
 #### 1. 环境准备
 ```bash
@@ -136,37 +171,129 @@ python -m cli.main video --url "https://www.bilibili.com/video/BV1234567890"
 
 ### ⌨️ CLI工具使用
 
-#### 基本命令
+#### 快速开始
 ```bash
-# 音频转录
-bili2text audio --url "https://www.bilibili.com/video/BV1234567890" --model medium
+# 使用conda环境
+conda activate bili2text-cli
 
-# 视频下载
-bili2text video --url "https://www.bilibili.com/video/BV1234567890"
-
-# 获取UP主动态
-bili2text dynamics --user "UP主用户名" --count 10
-
-# 批量处理
-bili2text batch --input-dir ./videos --output-dir ./results --type audio
+# 或使用便捷脚本（Linux/macOS）
+./bili2text.sh --help
 ```
 
-#### 可用模型
-- **tiny**: 最快，精度较低（39MB）
-- **base**: 平衡模式（74MB）
-- **medium**: 推荐模式（769MB）⭐
-- **large-v3**: 最高精度（1550MB）
+#### 核心命令
+
+##### 1. 获取UP主动态视频
+```bash
+# 获取指定UP主的最新动态
+./bili2text.sh dynamics --user "老师好我叫何同学" --count 5
+
+# 输出示例：
+# ✅ 成功获取 5 个动态视频:
+# 1. BV1JDMQzUEwy - 【何同学】为了不用倒垃圾，我们做了这个...
+# 2. BV1iZ42187bG - 【何同学】我找到了我最喜欢的数码产品...
+```
+
+##### 2. 下载音频并转录
+```bash
+# 基本用法
+./bili2text.sh audio --url "https://www.bilibili.com/video/BV1JDMQzUEwy"
+
+# 指定模型
+./bili2text.sh audio --url "视频URL" --model base --output-dir ./results
+
+# 输出示例：
+# 🎵 正在下载音频...
+# ✅ 音频下载完成
+# 🔄 正在加载Whisper模型 (base)...
+# 🎙️ 正在转录音频...
+# ✅ 转录完成！结果已保存到: ./results/视频标题_转录结果.txt
+```
+
+##### 3. 下载视频文件
+```bash
+# 下载单个视频
+./bili2text.sh video --url "https://www.bilibili.com/video/BV1JDMQzUEwy"
+
+# 指定输出目录
+./bili2text.sh video --url "视频URL" --output-dir ./downloads
+```
+
+##### 4. 转录本地视频
+```bash
+# 转录已下载的视频文件
+./bili2text.sh transcribe --input-dir ./storage/video --output-dir ./storage/results
+
+# 使用指定模型
+./bili2text.sh transcribe --input-dir ./videos --model medium
+```
+
+#### Whisper模型选择
+
+| 模型 | 大小 | 速度 | 准确度 | 推荐场景 |
+|------|------|------|---------|----------|
+| **tiny** | 39MB | 最快 | ★★☆☆☆ | 快速测试、英文内容 |
+| **base** | 74MB | 快速 | ★★★☆☆ | 日常使用推荐 ⭐ |
+| **medium** | 769MB | 中等 | ★★★★☆ | 需要高质量转录 |
+| **large-v3** | 1550MB | 慢 | ★★★★★ | 专业用途、最高精度 |
+
+#### 实际性能参考
+基于5分钟中文视频测试（CPU模式）：
+- **音频下载**: 约10秒
+- **模型加载**: base模型约90秒（首次）
+- **转录处理**: base模型约50秒
+- **总耗时**: 约2.5分钟
+
+#### 高级用法
+
+##### 批量处理
+```bash
+# 批量下载UP主所有视频的音频并转录
+./bili2text.sh dynamics --user "UP主名称" --count 20 > video_list.txt
+# 然后使用脚本批量处理...
+```
+
+##### 自定义工作流
+```bash
+# 1. 先下载视频
+./bili2text.sh video --url "URL" --output-dir ./raw_videos
+
+# 2. 批量转录
+./bili2text.sh transcribe --input-dir ./raw_videos --output-dir ./transcripts --model medium
+
+# 3. 查看结果
+ls -la ./transcripts/
+```
+
+#### 常见问题
+
+**Q: 首次运行很慢？**
+A: 首次使用需要下载Whisper模型，根据网络情况可能需要几分钟。模型会缓存在本地，后续使用会很快。
+
+**Q: 如何加速转录？**
+A: 
+- 使用较小的模型（tiny或base）
+- 如果有NVIDIA GPU，可以安装CUDA版本的PyTorch
+- 考虑批量处理以复用模型加载时间
+
+**Q: 内存不足？**
+A: 
+- 使用更小的模型
+- 关闭其他应用程序
+- 考虑增加系统swap空间
 
 ## 📁 项目结构
 
 ```
 Bili2Text/
-├── 🎯 cli/                        # 命令行工具
-│   ├── main.py                    # CLI主入口
-│   ├── download_audio.py          # 音频下载转录
-│   ├── download_video.py          # 视频下载
-│   ├── get_dynamics.py           # 动态获取
-│   └── batch_processor.py        # 批量处理
+├── 🔧 bin/                       # 可执行脚本
+│   └── bili2text.sh              # CLI启动脚本
+├── 🎯 cli/                       # 命令行工具
+│   ├── main.py                   # CLI主入口
+│   ├── download_audio_new.py     # 音频下载转录
+│   ├── download_video.py         # 视频下载
+│   ├── get_dynamics_new.py       # 动态获取
+│   ├── data/                     # CLI数据文件
+│   └── transcribe_videos.py      # 本地视频转录
 ├── 📱 webapp/                     # Web应用
 │   ├── api/                      # RESTful API
 │   ├── core/                     # 核心业务逻辑

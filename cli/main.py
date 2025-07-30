@@ -97,7 +97,11 @@ def main():
             from cli.download_video import main as video_main
             video_main(args)
         elif args.command == 'dynamics':
-            from cli.get_dynamics import main as dynamics_main
+            try:
+                from cli.get_dynamics import main as dynamics_main
+            except ImportError:
+                # 如果无法导入，使用演示版本
+                from cli.get_dynamics_demo import main as dynamics_main
             dynamics_main(args)
         elif args.command == 'batch':
             from cli.batch_processor import main as batch_main

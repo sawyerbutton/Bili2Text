@@ -1,0 +1,1 @@
+bin/bili2text.sh

@@ -1,0 +1,25 @@
+{
+  "user": "CryptoInvest加密投资",
+  "count": 3,
+  "mode": "demo",
+  "videos": [
+    {
+      "bvid": "BV1xx411c7mD",
+      "title": "【投资分析】2024年加密货币市场展望",
+      "desc": "本期我们将深入分析2024年加密货币市场的发展趋势...",
+      "url": "https://www.bilibili.com/video/BV1xx411c7mD"
+    },
+    {
+      "bvid": "BV1xx411c7mE",
+      "title": "【市场速递】比特币突破关键阻力位分析",
+      "desc": "技术分析显示BTC已经突破重要阻力...",
+      "url": "https://www.bilibili.com/video/BV1xx411c7mE"
+    },
+    {
+      "bvid": "BV1xx411c7mF",
+      "title": "【DeFi专题】去中心化金融的未来在哪里？",
+      "desc": "随着监管政策的逐步明晰，DeFi生态正在发生变化...",
+      "url": "https://www.bilibili.com/video/BV1xx411c7mF"
+    }
+  ]
+}

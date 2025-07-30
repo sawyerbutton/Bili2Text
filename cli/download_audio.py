@@ -1,134 +1,174 @@
 """
-Bili2Text - 哔哩哔哩视频音频转录工具（批量处理版本）
-=====================================================
+Bili2Text - 音频下载与转录工具
+============================
 
-文件目的：
-    批量下载指定B站视频的音频文件，并使用Whisper模型进行语音转录，
-    将转录结果保存为文本文件。这是一个简化版本的音频转录工具。
-
-主要功能：
-    1. 批量下载B站视频的音频文件
-    2. 使用Whisper模型进行语音转录
-    3. 标点符号标准化处理
-    4. 保存转录结果为文本文件
-    5. 自动管理文件目录结构
-
-与get_ref_from_dynamics.py的区别：
-    - 本文件用于批量处理指定的视频URL列表
-    - 不包含动态获取和视频筛选功能
-    - 输出格式为简单的文本文件，而非Markdown
-    - 适用于已知视频URL的批量转录场景
-
-依赖库：
-    - asyncio: 异步编程支持
-    - bilix: B站视频下载工具
-    - whisper: OpenAI语音转录模型
-    - torch: PyTorch深度学习框架
-
-作者：[Your Name]
-创建时间：[Date]
+功能：下载B站视频音频并使用Whisper进行转录
 """
 
 import asyncio
 import os
-import re
-import shutil
+import sys
+import time
 from datetime import datetime
+from pathlib import Path
 
-import torch
-import whisper
-from bilix.sites.bilibili import DownloaderBilibili
+# 添加项目根目录到Python路径
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-# 配置要处理的视频URL列表
-audio_urls = ["https://www.bilibili.com/video/BV1LCM3zwEH9/?spm_id_from=333.1391.0.0"]
-
-
-async def downloadaudio(url):
-    """
-    下载指定B站视频的音频文件
+def main(args):
+    """音频下载和转录的主函数"""
+    video_url = args.url
+    model_name = args.model
+    output_dir = Path(args.output_dir)
     
-    Args:
-        url (str): B站视频URL
+    print("=" * 50)
+    print("Bili2Text - 音频下载与转录工具")
+    print("=" * 50)
+    print(f"视频URL: {video_url}")
+    print(f"Whisper模型: {model_name}")
+    print(f"输出目录: {output_dir}")
+    print("=" * 50)
+    
+    # 创建必要的目录
+    temp_dir = Path("./storage/temp")
+    audio_dir = Path("./storage/audio")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    audio_dir.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        # 1. 下载音频
+        print("\n[1/3] 正在下载音频...")
+        start_time = time.time()
         
-    功能：
-        - 使用bilix库异步下载视频的音频部分
-        - 保存到./temp目录
-        - 仅下载音频，不下载视频文件
+        # 异步下载音频
+        audio_path = asyncio.run(download_audio(video_url, temp_dir, audio_dir))
         
-    注意：
-        - 需要在异步环境中调用
-        - 下载的文件会保存在temp目录中
-    """
+        download_time = time.time() - start_time
+        print(f"音频下载完成，耗时 {download_time:.1f} 秒")
+        print(f"音频文件: {audio_path}")
+        
+        # 2. 加载Whisper模型
+        print(f"\n[2/3] 正在加载Whisper模型 ({model_name})...")
+        model_start = time.time()
+        
+        import torch
+        import whisper
+        
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"使用设备: {device}")
+        
+        # 设置模型缓存目录
+        cache_dir = Path.home() / ".cache" / "whisper"
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        model = whisper.load_model(
+            name=model_name,
+            device=device,
+            download_root=str(cache_dir)
+        )
+        
+        model_time = time.time() - model_start
+        print(f"模型加载完成，耗时 {model_time:.1f} 秒")
+        
+        # 3. 执行转录
+        print(f"\n[3/3] 正在转录音频...")
+        transcribe_start = time.time()
+        
+        result = model.transcribe(
+            str(audio_path),
+            verbose=True,
+            language="zh",
+            initial_prompt="以下是普通话的句子。"
+        )
+        
+        transcribe_time = time.time() - transcribe_start
+        print(f"\n转录完成，耗时 {transcribe_time:.1f} 秒")
+        
+        # 4. 保存结果
+        text = result["text"]
+        
+        # 标点符号标准化
+        text = text.replace(",", "，")
+        text = text.replace("?", "？")
+        text = text.replace("!", "！")
+        text = text.replace(";", "；")
+        text = text.replace(":", "：")
+        
+        # 生成输出文件名
+        audio_name = Path(audio_path).stem
+        output_file = output_dir / f"{audio_name}_转录结果.txt"
+        
+        # 保存转录结果
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(f"视频URL: {video_url}\n")
+            f.write(f"转录时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"使用模型: {model_name}\n")
+            f.write(f"转录耗时: {transcribe_time:.1f} 秒\n")
+            f.write("=" * 50 + "\n\n")
+            f.write(text)
+        
+        print(f"\n转录结果已保存到: {output_file}")
+        
+        # 输出摘要
+        total_time = time.time() - start_time
+        print("\n" + "=" * 50)
+        print("任务完成！")
+        print(f"总耗时: {total_time:.1f} 秒")
+        print(f"  - 下载: {download_time:.1f} 秒")
+        print(f"  - 加载模型: {model_time:.1f} 秒")
+        print(f"  - 转录: {transcribe_time:.1f} 秒")
+        print("=" * 50)
+        
+        return 0
+        
+    except Exception as e:
+        print(f"\n错误: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
+
+
+async def download_audio(url, temp_dir, audio_dir):
+    """下载视频音频"""
+    from bilix.sites.bilibili import DownloaderBilibili
+    
+    # 使用bilix下载音频
     async with DownloaderBilibili() as d:
-        await d.get_video(url, path="./temp", only_audio=True)
-
-
-# 准备工作环境
-print("准备工作环境......")
-audio_folder_path = "./audio"      # 音频文件存储目录
-temp_folder_path = "./temp"        # 临时下载目录
-result_folder_path = "./result"    # 转录结果存储目录
-
-# 创建必要的目录结构
-if not os.path.exists(audio_folder_path):
-    os.makedirs(audio_folder_path)
-if not os.path.exists(temp_folder_path):
-    os.makedirs(temp_folder_path)
-if not os.path.exists(result_folder_path):
-    os.makedirs(result_folder_path)
-
-# 加载Whisper语音转录模型
-# model_name = "large-v3"  # 可选：large-v3（最高精度，速度较慢）
-model_name = "medium"      # 当前使用：medium（平衡精度和速度）
-print(f"使用Whisper模型: {model_name}")
-print("正在加载模型......")
-
-time1 = datetime.now()
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 自动选择GPU或CPU
-model = whisper.load_model(
-    name=model_name,
-    device=device,
-    download_root="./.cache/whisper",  # 模型缓存目录
-)
-time2 = datetime.now()
-print(f"模型加载完成，耗时 {(time2 - time1).seconds} 秒")
-
-# 批量下载和转录处理
-for audio_url in audio_urls:
-    print(f"\n处理视频: {audio_url}")
-    
-    # 下载音频文件到临时目录
-    print(f"正在从 {audio_url} 下载音频")
-    asyncio.run(downloadaudio(audio_url))
-    print("音频下载完成")
+        await d.get_video(url, path=str(temp_dir), only_audio=True)
     
     # 移动音频文件到指定目录
-    audio_name = os.listdir(temp_folder_path)[0]  # 获取下载的音频文件名
-    temp_path = temp_folder_path + "/" + audio_name
-    audio_path = audio_folder_path + "/" + audio_name
-    shutil.move(temp_path, audio_path)
-
-    # 执行语音转录
-    print("开始转录......")
-    time3 = datetime.now()
-    result = model.transcribe(
-        audio_path,
-        verbose=True,  # 显示转录进度
-        initial_prompt='"生于忧患，死于安乐。岂不快哉？"简体中文,加上标点。',  # 提示模型使用中文和标点
-    )
-    time4 = datetime.now()
-    print(f"转录完成，耗时 {(time4 - time3).seconds} 秒")
-
-    # 保存转录结果
-    print("正在保存结果......")
-    text = result["text"]
+    audio_files = list(temp_dir.glob("*.mp4"))
+    if not audio_files:
+        audio_files = list(temp_dir.glob("*.m4a"))
+    if not audio_files:
+        audio_files = list(temp_dir.glob("*.aac"))
+    if not audio_files:
+        audio_files = list(temp_dir.glob("*.mp3"))
     
-    # 标点符号标准化（英文标点转中文标点）
-    text = re.sub(",", "，", text)      # 逗号标准化
-    text = re.sub(r"\?", "？", text)    # 问号标准化
+    if not audio_files:
+        # 列出所有文件
+        all_files = list(temp_dir.glob("*"))
+        print(f"临时目录中的文件: {[f.name for f in all_files]}")
+        raise Exception("未找到下载的音频文件")
     
-    # 保存为文本文件
-    result_file_path = result_folder_path + "/" + audio_name + ".txt"
-    with open(result_file_path, "w", encoding="utf-8") as f:
-        f.write(text)
-    print(f"结果已保存到: {result_file_path}")
+    audio_file = audio_files[0]
+    target_path = audio_dir / audio_file.name
+    
+    # 移动文件
+    import shutil
+    shutil.move(str(audio_file), str(target_path))
+    
+    return target_path
+
+
+if __name__ == '__main__':
+    # 用于测试
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--url', required=True)
+    parser.add_argument('--model', default='tiny')
+    parser.add_argument('--output-dir', default='./storage/results')
+    args = parser.parse_args()
+    main(args)

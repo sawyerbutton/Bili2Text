@@ -3,7 +3,26 @@
     "allow": [
       "mcp__filesystem__list_directory",
       "mcp__filesystem__read_file",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(ls:*)",
+      "Bash(pip3 list:*)",
+      "Bash(sudo apt-get:*)",
+      "Bash(sudo apt-get install:*)",
+      "Bash(wget:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(bash:*)",
+      "Bash(export PATH=\"$HOME/miniconda3/bin:$PATH\")",
+      "Bash(conda:*)",
+      "Bash(chmod:*)",
+      "Bash(./bili2text.sh:*)",
+      "Bash(mkdir:*)",
+      "Bash(rm:*)",
+      "Bash(nvidia-smi:*)",
+      "Bash(true)",
+      "Bash(mv:*)",
+      "Bash(ln:*)",
+      "Bash(tree:*)"
     ],
     "deny": []
   }

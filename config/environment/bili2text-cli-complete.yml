@@ -1,0 +1,42 @@
+name: bili2text-cli
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  # Python 核心
+  - python=3.11
+  - pip
+  
+  # 系统依赖
+  - ffmpeg
+  
+  # pip 安装的包
+  - pip:
+    # B站相关
+    - bilibili-api-python
+    - bilix==0.18.5
+    
+    # bilibili-api-python 的依赖
+    - aiohttp
+    - yarl
+    - pillow
+    - pyyaml
+    - PyJWT
+    - qrcode
+    - qrcode-terminal
+    - colorama
+    - brotli
+    - apscheduler
+    
+    # 网络和异步
+    - httpx==0.26.0
+    - aiofiles==23.2.1
+    - httpx[socks]
+    
+    # 数据处理
+    - beautifulsoup4==4.12.2
+    - click==8.1.7
+    
+    # 进度显示
+    - tqdm==4.66.1
+    - rich==13.7.0
