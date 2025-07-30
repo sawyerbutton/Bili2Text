@@ -22,7 +22,8 @@
       "Bash(true)",
       "Bash(mv:*)",
       "Bash(ln:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash($HOME/miniconda3/bin/conda:*)"
     ],
     "deny": []
   }

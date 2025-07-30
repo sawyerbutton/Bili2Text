@@ -92,11 +92,16 @@ def main(args):
                         dynamic_type = dynamic.get('type', '')
                         
                         # 获取主要内容模块
-                        module_dynamic = dynamic.get('modules', {}).get('module_dynamic', {})
+                        modules = dynamic.get('modules', {})
+                        if modules is None:
+                            modules = {}
+                        module_dynamic = modules.get('module_dynamic', {})
                         
                         if dynamic_type == 'DYNAMIC_TYPE_AV':
                             # 视频动态
                             major = module_dynamic.get('major', {})
+                            if major is None:
+                                major = {}
                             archive = major.get('archive', {})
                             
                             title = archive.get('title', '无标题')
@@ -110,12 +115,40 @@ def main(args):
                                 print(f"   描述: {desc[:50]}...")
                         else:
                             # 其他类型动态
-                            desc_text = module_dynamic.get('desc', {}).get('text', '')
-                            if not desc_text:
-                                # 尝试其他字段
-                                desc_text = str(dynamic.get('orig', {}).get('modules', {}).get('module_dynamic', {}).get('desc', {}).get('text', '动态内容'))
+                            desc = module_dynamic.get('desc', {})
+                            if desc is None:
+                                desc = {}
+                            desc_text = desc.get('text', '')
                             
-                            print(f"\n{i}. [动态] {desc_text[:50]}...")
+                            if not desc_text:
+                                # 尝试从orig字段获取
+                                orig = dynamic.get('orig', {})
+                                if orig and isinstance(orig, dict):
+                                    orig_modules = orig.get('modules', {})
+                                    if orig_modules and isinstance(orig_modules, dict):
+                                        orig_module_dynamic = orig_modules.get('module_dynamic', {})
+                                        if orig_module_dynamic and isinstance(orig_module_dynamic, dict):
+                                            orig_desc = orig_module_dynamic.get('desc', {})
+                                            if orig_desc and isinstance(orig_desc, dict):
+                                                desc_text = orig_desc.get('text', '')
+                            
+                            # 对于图文动态，尝试获取图片信息
+                            if dynamic_type == 'DYNAMIC_TYPE_DRAW':
+                                major = module_dynamic.get('major', {})
+                                if major and isinstance(major, dict):
+                                    draw = major.get('draw', {})
+                                    if draw and isinstance(draw, dict):
+                                        items = draw.get('items', [])
+                                        if items:
+                                            print(f"\n{i}. [图文动态] {desc_text[:50] if desc_text else '(包含' + str(len(items)) + '张图片)'}...")
+                                        else:
+                                            print(f"\n{i}. [图文动态] {desc_text[:50] if desc_text else '(无内容)'}...")
+                                    else:
+                                        print(f"\n{i}. [{dynamic_type}] {desc_text[:50] if desc_text else '(无内容)'}...")
+                                else:
+                                    print(f"\n{i}. [{dynamic_type}] {desc_text[:50] if desc_text else '(无内容)'}...")
+                            else:
+                                print(f"\n{i}. [{dynamic_type}] {desc_text[:50] if desc_text else '(无文本内容)'}...")
                     else:
                         # 旧API格式
                         if 'desc' in dynamic and 'bvid' in dynamic['desc']:
@@ -132,6 +165,10 @@ def main(args):
                         
                 except Exception as e:
                     print(f"\n{i}. 解析动态失败: {e}")
+                    # 调试信息
+                    if dynamic:
+                        print(f"   动态类型: {dynamic.get('type', '未知')}")
+                        print(f"   动态keys: {list(dynamic.keys())[:5]}...")
             
             print("\n" + "-" * 50)
             

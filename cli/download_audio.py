@@ -63,11 +63,30 @@ def main(args):
         cache_dir = Path.home() / ".cache" / "whisper"
         cache_dir.mkdir(parents=True, exist_ok=True)
         
-        model = whisper.load_model(
-            name=model_name,
-            device=device,
-            download_root=str(cache_dir)
-        )
+        # 尝试加载模型，如果失败则使用更小的模型
+        try:
+            model = whisper.load_model(
+                name=model_name,
+                device=device,
+                download_root=str(cache_dir)
+            )
+        except Exception as e:
+            if "SHA256 checksum does not match" in str(e):
+                print(f"\n⚠️ {model_name}模型文件损坏，尝试使用tiny模型...")
+                # 清理损坏的模型文件
+                model_file = cache_dir / f"{model_name}.pt"
+                if model_file.exists():
+                    model_file.unlink()
+                # 使用tiny模型
+                model_name = "tiny"
+                model = whisper.load_model(
+                    name=model_name,
+                    device=device,
+                    download_root=str(cache_dir)
+                )
+                print(f"已切换到{model_name}模型")
+            else:
+                raise
         
         model_time = time.time() - model_start
         print(f"模型加载完成，耗时 {model_time:.1f} 秒")
