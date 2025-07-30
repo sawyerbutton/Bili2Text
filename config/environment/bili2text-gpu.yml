@@ -1,0 +1,48 @@
+name: bili2text-gpu
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  # Python核心
+  - python=3.11
+  - pip
+  
+  # CUDA和GPU相关
+  - cudatoolkit=11.8  # 兼容性更好
+  - cudnn=8.9
+  
+  # 系统依赖
+  - ffmpeg
+  
+  # pip安装的包
+  - pip:
+    # PyTorch GPU版本 (通过pip安装以确保CUDA兼容性)
+    # 安装命令: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+    
+    # Whisper
+    - openai-whisper
+    
+    # B站相关
+    - bilibili-api-python
+    - bilix==0.18.5
+    
+    # 网络和异步
+    - httpx==0.26.0
+    - aiofiles==23.2.1
+    - beautifulsoup4==4.12.2
+    
+    # 数据处理
+    - click==8.1.7
+    
+    # 进度显示
+    - tqdm==4.66.1
+    - rich==13.7.0
+    
+    # 性能优化
+    - numba
+    - nvidia-ml-py3  # GPU监控
+    
+    # Whisper加速
+    - triton>=2.0.0  # GPU优化

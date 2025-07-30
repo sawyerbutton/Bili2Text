@@ -39,6 +39,16 @@ logger = logging.getLogger(__name__)
 class GPUTranscriber:
     """GPU加速的Whisper转录器"""
     
+    # 模型显存需求（GB）
+    MODEL_VRAM_REQUIREMENTS = {
+        'tiny': 1.5,
+        'base': 1.5,
+        'small': 2.5,
+        'medium': 5.0,
+        'large': 10.0,
+        'large-v3': 10.0
+    }
+    
     def __init__(self, model_name: str = "medium", device: str = "auto", 
                  compute_type: str = "float16", num_workers: int = 1):
         """
@@ -74,11 +84,42 @@ class GPUTranscriber:
             if self.device.type == 'cuda':
                 gpu_props = torch.cuda.get_device_properties(0)
                 total_memory = gpu_props.total_memory / 1024**3  # GB
+                available_memory = (gpu_props.total_memory - torch.cuda.memory_allocated(0)) / 1024**3
                 logger.info(f"GPU: {gpu_props.name}")
-                logger.info(f"显存: {total_memory:.1f} GB")
+                logger.info(f"显存: {total_memory:.1f} GB (可用: {available_memory:.1f} GB)")
+                
+                # 检查显存是否足够
+                required_vram = self.MODEL_VRAM_REQUIREMENTS.get(self.model_name, 5.0)
+                if self.compute_type == 'float16':
+                    required_vram *= 0.6  # FP16大约减少40%显存需求
+                
+                if available_memory < required_vram * 0.9:  # 留10%余量
+                    logger.warning(f"警告: {self.model_name}模型需要约{required_vram:.1f}GB显存，但只有{available_memory:.1f}GB可用")
+                    
+                    # 推荐合适的模型
+                    for model, vram in self.MODEL_VRAM_REQUIREMENTS.items():
+                        if self.compute_type == 'float16':
+                            vram *= 0.6
+                        if available_memory >= vram * 0.9:
+                            logger.info(f"建议使用 {model} 模型（需要 {vram:.1f}GB）")
+                            if model != self.model_name:
+                                logger.info(f"自动切换到 {model} 模型")
+                                self.model_name = model
+                            break
+                    else:
+                        logger.error("显存不足，无法加载任何模型")
+                        raise RuntimeError(f"显存不足: 需要{required_vram:.1f}GB，只有{available_memory:.1f}GB")
                 
                 # 设置GPU内存分配策略
-                torch.cuda.set_per_process_memory_fraction(0.9)  # 使用90%显存
+                # 为large模型优化内存分配
+                if self.model_name in ['large', 'large-v3']:
+                    torch.cuda.set_per_process_memory_fraction(0.95)  # large模型使用95%
+                    torch.cuda.empty_cache()  # 清理缓存
+                    # 设置更保守的内存分配策略
+                    os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
+                else:
+                    torch.cuda.set_per_process_memory_fraction(0.9)  # 其他模型使用90%
+                
                 torch.backends.cudnn.benchmark = True  # 优化卷积操作
             
             # 加载模型
@@ -99,6 +140,8 @@ class GPUTranscriber:
             # 如果使用GPU且支持FP16，转换模型
             if self.device.type == 'cuda' and self.compute_type == 'float16':
                 logger.info("启用FP16混合精度推理")
+                # 只转换模型到half，不转换输入
+                # Whisper内部会处理输入类型转换
                 self.model = self.model.half()
             
             load_time = time.time() - start_time
@@ -171,9 +214,11 @@ class GPUTranscriber:
             'logprob_threshold': -1.0,
             'no_speech_threshold': 0.6,
             'condition_on_previous_text': True,
-            'fp16': self.device.type == 'cuda' and self.compute_type == 'float16',
             'verbose': True
         }
+        
+        # FP16参数处理 - Whisper会自动处理类型转换
+        # 不需要显式设置fp16参数，模型已经是half类型
         
         # 合并用户参数
         params = {**default_params, **kwargs}

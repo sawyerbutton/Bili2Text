@@ -37,7 +37,8 @@
       "mcp__promptx__promptx_remember",
       "mcp__promptx__promptx_welcome",
       "Bash(source:*)",
-      "Bash(./venv/bin/python:*)"
+      "Bash(./venv/bin/python:*)",
+      "mcp__promptx__promptx_recall"
     ],
     "deny": []
   }

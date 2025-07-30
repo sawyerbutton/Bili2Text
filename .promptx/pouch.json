@@ -1,5 +1,5 @@
 {
-  "currentState": "memory_saved",
+  "currentState": "recalled-assistant",
   "stateHistory": [
     {
       "from": "initial",
@@ -75,7 +75,27 @@
         "--tags",
         "GPU加速 Whisper CUDA 性能优化 开发记录"
       ]
+    },
+    {
+      "from": "memory_saved",
+      "command": "remember",
+      "timestamp": "2025-07-30T07:40:17.297Z",
+      "args": [
+        "assistant",
+        "## Bili2Text GPU功能URL支持更新 - 2025-07-30\n\n### 用户需求\n用户希望gpu-transcribe命令能像audio命令一样支持URL输入，简化从B站下载并转录的流程，统一CLI命令参数模式。\n\n### 实现的更新\n\n#### 1. CLI参数统一 (main.py)\n- gpu-transcribe命令新增--url参数，支持B站视频URL\n- 保留--input参数用于本地文件\n- 添加参数验证：--url和--input必须提供其一，但不能同时使用\n- 修改参数传递逻辑，将CLI参数正确传递给gpu_transcribe.py\n\n#### 2. GPU转录脚本增强 (gpu_transcribe.py)\n- 新增download_audio_from_url异步函数\n  - 使用bilix下载B站视频音频\n  - 支持多种音频格式(.mp4, .m4a, .aac, .mp3)\n  - 自动清理临时文件\n- main函数更新：\n  - 支持--url参数\n  - URL和本地文件的统一处理流程\n  - 下载的音频保存到storage/audio目录\n- save_transcription函数增强：\n  - 支持在结果中记录原始URL信息\n\n#### 3. 文档更新\n- CLI README.md更新使用示例\n- 明确说明URL和本地文件两种使用方式\n- 更新gpu_transcribe.py功能说明\n\n### 使用方式对比\n\n之前：\n```bash\n# 需要两步：先下载，再转录\npython -m cli.main audio --url \"URL\" --model base  # CPU下载\npython -m cli.main gpu-transcribe --input audio.mp3  # GPU转录\n```\n\n现在：\n```bash\n# 一步完成：直接从URL使用GPU转录\npython -m cli.main gpu-transcribe --url \"URL\" --model large\n```\n\n### 技术细节\n1. 保持了异步下载机制，提高下载效率\n2. 错误处理完善，下载失败不影响程序稳定性\n3. 临时文件自动清理，避免磁盘空间浪费\n4. 参数验证严格，提供清晰的错误提示\n\n### 项目当前状态总结\n- CLI工具已完整支持GPU加速转录\n- 统一的参数模式让用户体验更一致\n- GPU功能与现有CPU功能完全兼容\n- 文档已更新，使用说明清晰\n\n### 下一步建议\n1. 测试GPU转录功能的实际性能提升\n2. 考虑添加进度条显示下载和转录进度\n3. 可以添加断点续传功能提高大文件下载可靠性",
+        "--tags",
+        "GPU功能 URL支持 CLI优化 功能更新"
+      ]
+    },
+    {
+      "from": "memory_saved",
+      "command": "recall",
+      "timestamp": "2025-07-30T07:39:02.788Z",
+      "args": [
+        "assistant",
+        "Bili2Text"
+      ]
     }
   ],
-  "lastUpdated": "2025-07-30T07:22:30.857Z"
+  "lastUpdated": "2025-07-30T07:39:02.790Z"
 }
