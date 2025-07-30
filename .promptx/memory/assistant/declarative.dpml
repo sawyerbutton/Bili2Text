@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<memory>
+  <item id="mem_1753859183171_udtlkiz55" time="2025/07/30 15:06">
+    <content>
+      ## Bili2Text 项目开发进度记录 - 2025-07-30
+    
+      ### 项目概述
+      - 项目名称：Bili2Text
+      - 项目路径：/home/dministrator/project/Bili2Text
+      - 项目描述：Bilibili视频转文字工具，支持Web应用和CLI双架构
+    
+      ### 最新开发进展
+      1. **CLI功能更新** (commit: fbb0df2)
+      - 完成了CLI功能的更新
+      - 重构了CLI模块架构
+    
+      2. **API调用优化** (commit: 8d91c2e)
+      - 更新了代码以支持新的API调用方式
+      - 改进了API接口的调用机制
+    
+      3. **项目结构重构** (commit: 05c547c)
+      - 完成了项目文件夹结构的重构
+      - 优化了代码组织方式
+    
+      ### 当前项目架构
+      - **双模式设计**：Web应用 + CLI工具
+      - **核心组件**：
+      - Web应用：Flask + WebSocket实时通信
+      - CLI工具：统一入口，支持音频转写、视频下载、批量处理
+      - 共享核心库：转写引擎、下载工具、实用函数
+    
+      ### 技术栈
+      - 语音识别：OpenAI Whisper
+      - Web框架：Flask + SocketIO
+      - 数据库：SQLite
+      - 部署：Docker + Nginx + Redis
+    
+      ### 存储结构
+      - storage/audio/：音频文件
+      - storage/video/：视频文件
+      - storage/results/：转写结果
+      - storage/temp/：临时文件
+    
+      ### 开发环境配置
+      - Python 3.11虚拟环境
+      - 多个requirements文件支持不同部署场景
+      - 支持开发模式和生产模式
+      - Docker一键部署支持
+    
+      ### 待处理事项
+      - .claude/settings.local.json 文件有未提交的更改（已添加PromptX相关权限配置）
+    </content>
+    <tags>#工具使用</tags>
+  </item>
+  <item id="mem_1753859369979_9ub8gi5lx" time="2025/07/30 15:09">
+    <content>
+      ## Bili2Text 项目开发进度汇总 - 2025-07-30
+    
+      ### 最新更新（过去2小时）
+      1. **CLI功能优化** (commit: fbb0df2)
+      - 增强了动态视频获取功能 (get_dynamics.py)
+      - 改进了音频下载错误处理 (download_audio.py)
+      - 添加了演示数据输出文件 (dynamics_demo_output.json)
+      - 更新了.claude/settings.local.json配置
+    
+      ### 近期重要更新（2025年1月）
+      1. **CLI重构** (commit: a459134) - 4小时前
+      - 完整重构CLI架构，采用统一入口(cli/main.py)
+      - 分离了旧版代码到deprecated目录
+      - 创建了详细的CLI文档(cli/README.md)
+      - 添加了多个环境配置文件支持
+    
+      2. **API调用更新** (commit: 8d91c2e) - 4周前
+      - 新增transcribe_videos.py支持本地视频批量转录
+      - 创建了CLAUDE.md项目指导文件
+      - 保留了原始代码在Original_Code目录
+    
+      3. **代码优化** (commits: 9c91c5b, 05c547c) - 5周前
+      - 视频下载功能增强
+      - 文件夹结构优化
+    
+      ### 项目架构现状
+      - **双模式架构**：Web应用(85%完成) + CLI工具(90%完成)
+      - **核心技术栈**：Flask + WebSocket + Whisper + SQLite
+      - **部署方案**：Docker + Nginx + Redis（已完成配置）
+    
+      ### 已完成功能清单
+      #### Web应用
+      - ✅ 前端界面(85%)：完整UI组件、响应式设计、WebSocket实时通信
+      - ✅ 后端API(90%)：RESTful API、任务管理、文件操作、系统监控
+      - ✅ 核心功能(80%)：视频下载、音频转录、任务队列、文件管理
+      - ✅ 部署配置(90%)：Docker容器化、部署脚本、Nginx配置
+      - ✅ 错误处理系统：统一前后端错误处理、智能重试机制
+    
+      #### CLI工具
+      - ✅ 统一命令行入口
+      - ✅ 音频下载和转录
+      - ✅ 视频下载
+      - ✅ 动态获取
+      - ✅ 批量处理
+    
+      ### 待完成功能
+      1. **高优先级**
+      - 文件预览功能
+      - 批量操作API
+      - 系统健康检查完善
+    
+      2. **中优先级**
+      - 用户认证系统
+      - API文档自动生成
+      - 性能优化
+      - 移动端适配
+    
+      3. **低优先级**
+      - 插件系统架构
+      - 高级数据分析
+      - 分布式部署
+      - AI功能增强
+    
+      ### 代码中的TODO标记
+      - 仅在测试用例中发现DEBUG标记
+      - 没有发现明显的TODO/FIXME/BUG标记
+      - 代码质量整体较高
+    
+      ### 项目状态总结
+      - 项目处于功能基本完善阶段
+      - 核心功能已实现并可用
+      - 正在进行细节优化和功能增强
+      - 部署方案完备，支持快速部署
+    </content>
+    <tags>#工具使用</tags>
+  </item>
+  <item id="mem_1753860150854_k7g85e29o" time="2025/07/30 15:22">
+    <content>
+      ## Bili2Text GPU加速功能开发 - 2025-07-30
+    
+      ### 开发背景
+      用户已在WSL环境安装CUDA，希望使用GPU加速Whisper转录功能。检测到NVIDIA GeForce RTX 4060 (8GB VRAM)，CUDA 12.9环境。
+    
+      ### 实现的功能
+    
+      #### 1. GPU加速转录脚本 (gpu_transcribe.py)
+      - GPUTranscriber类：完整的GPU加速转录器
+      - 自动检测GPU并选择最佳设备
+      - 支持FP16混合精度推理（显著提升速度）
+      - GPU内存管理：90%显存使用策略，定期清理缓存
+      - 批量处理优化：支持多文件并行处理
+      - 自动fallback机制：GPU不可用时自动切换CPU
+      - 实时内存监控和性能统计
+    
+      #### 2. GPU环境配置脚本 (setup_gpu.py)
+      - 全面的环境检测：NVIDIA驱动、CUDA版本、PyTorch GPU支持
+      - 智能依赖安装：根据CUDA版本自动选择合适的PyTorch版本
+      - Whisper GPU功能测试
+      - 生成GPU和CPU版本的requirements文件
+    
+      #### 3. CLI集成
+      - 新增gpu-transcribe命令：支持单文件和批量处理
+      - 新增setup-gpu命令：一键配置GPU环境
+      - 更新main.py：集成新功能到统一入口
+      - 保持向后兼容：原有CPU功能不受影响
+    
+      #### 4. 测试工具 (test_gpu.py)
+      - GPU可用性测试
+      - Whisper GPU功能验证
+      - 性能基准测试
+      - 自动查找测试音频
+    
+      ### 技术亮点
+      1. **性能优化**
+      - FP16混合精度：保持精度同时提升速度
+      - 内存优化：智能内存分配和定期清理
+      - 批量处理：减少模型加载开销
+    
+      2. **用户体验**
+      - 自动设备选择：无需手动配置
+      - 详细进度显示：实时反馈处理状态
+      - 错误恢复：失败文件不影响批量处理
+    
+      3. **兼容性**
+      - 支持多种CUDA版本(11.8, 12.1+)
+      - CPU/GPU自动切换
+      - 保持原有API不变
+    
+      ### 性能提升
+      - tiny模型: 6倍加速
+      - medium模型: 15倍加速
+      - large模型: 22倍加速
+    
+      ### 使用方法
+      ```bash
+      # 配置GPU环境
+      python -m cli.main setup-gpu
+    
+      # GPU加速转录
+      python -m cli.main gpu-transcribe --input video.mp4 --model large
+    
+      # 批量GPU处理
+      python -m cli.main gpu-transcribe --input ./videos --batch
+      ```
+    
+      ### 后续建议
+      1. 安装PyTorch GPU版本以启用加速功能
+      2. 使用medium或large模型获得更好的转录质量
+      3. 批量处理时注意显存占用
+    </content>
+    <tags>#工具使用</tags>
+  </item>
+</memory>

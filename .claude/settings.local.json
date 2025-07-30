@@ -23,7 +23,21 @@
       "Bash(mv:*)",
       "Bash(ln:*)",
       "Bash(tree:*)",
-      "Bash($HOME/miniconda3/bin/conda:*)"
+      "Bash($HOME/miniconda3/bin/conda:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(claude mcp add promptx npx -- -f -y dpml-prompt@beta mcp-server)",
+      "Bash(claude mcp:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(claude restart)",
+      "mcp__promptx__promptx_init",
+      "mcp__promptx__promptx_action",
+      "mcp__promptx__promptx_remember",
+      "mcp__promptx__promptx_welcome",
+      "Bash(source:*)",
+      "Bash(./venv/bin/python:*)"
     ],
     "deny": []
   }

@@ -34,6 +34,13 @@ def main():
   
   # 转录本地视频文件
   bili2text transcribe --input-dir ./storage/video --output-dir ./storage/results/result
+  
+  # GPU加速转录（新功能）
+  bili2text gpu-transcribe --input video.mp4 --model large --device cuda
+  bili2text gpu-transcribe --url "https://www.bilibili.com/video/BV1234567890" --model large
+  
+  # 配置GPU环境
+  bili2text setup-gpu
         """
     )
     
@@ -81,6 +88,30 @@ def main():
     transcribe_parser.add_argument('--force-cpu', action='store_true',
                                   help='强制使用CPU (即使有GPU可用)')
     
+    # GPU转录命令（新增）
+    gpu_parser = subparsers.add_parser('gpu-transcribe', help='GPU加速转录（高性能）')
+    # 支持URL或本地文件输入
+    gpu_parser.add_argument('--url', '-u', help='B站视频URL')
+    gpu_parser.add_argument('--input', '-i', help='本地文件或目录')
+    gpu_parser.add_argument('--output', '-o', default='./storage/results',
+                           help='输出目录')
+    gpu_parser.add_argument('--model', '-m', default='medium',
+                           choices=['tiny', 'base', 'small', 'medium', 'large', 'large-v3'],
+                           help='Whisper模型选择')
+    gpu_parser.add_argument('--device', '-d', default='auto',
+                           choices=['auto', 'cuda', 'cpu'],
+                           help='计算设备选择')
+    gpu_parser.add_argument('--compute-type', default='float16',
+                           choices=['float16', 'float32'],
+                           help='计算精度（仅GPU有效）')
+    gpu_parser.add_argument('--batch', action='store_true',
+                           help='批量处理模式')
+    
+    # GPU设置命令（新增）
+    setup_parser = subparsers.add_parser('setup-gpu', help='配置GPU环境')
+    setup_parser.add_argument('--check-only', action='store_true',
+                            help='仅检查环境，不安装')
+    
     # 解析参数
     args = parser.parse_args()
     
@@ -109,6 +140,31 @@ def main():
         elif args.command == 'transcribe':
             from cli.transcribe_videos import main as transcribe_main
             transcribe_main(args)
+        elif args.command == 'gpu-transcribe':
+            from cli.gpu_transcribe import main as gpu_main
+            # 验证输入参数
+            if not args.url and not args.input:
+                print("错误: 必须提供 --url 或 --input 参数之一")
+                sys.exit(1)
+            if args.url and args.input:
+                print("错误: --url 和 --input 参数不能同时使用")
+                sys.exit(1)
+            # 传递参数给gpu_main
+            sys.argv = ['gpu_transcribe.py']
+            if args.url:
+                sys.argv.extend(['--url', args.url])
+            else:
+                sys.argv.extend(['--input', args.input])
+            sys.argv.extend(['--output', args.output])
+            sys.argv.extend(['--model', args.model])
+            sys.argv.extend(['--device', args.device])
+            sys.argv.extend(['--compute-type', args.compute_type])
+            if args.batch:
+                sys.argv.append('--batch')
+            gpu_main()
+        elif args.command == 'setup-gpu':
+            from cli.setup_gpu import main as setup_main
+            setup_main()
     except KeyboardInterrupt:
         print("\n用户中断操作")
         sys.exit(1)
