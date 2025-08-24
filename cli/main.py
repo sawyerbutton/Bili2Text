@@ -41,6 +41,10 @@ def main():
   
   # 配置GPU环境
   bili2text setup-gpu
+  
+  # 批量下载UP主所有视频（新功能）
+  bili2text user-videos --uid 123456  # 通过UID下载
+  bili2text user-videos --user "UP主名称" --audio-only  # 通过用户名下载音频
         """
     )
     
@@ -112,6 +116,23 @@ def main():
     setup_parser.add_argument('--check-only', action='store_true',
                             help='仅检查环境，不安装')
     
+    # 批量下载UP主视频命令（新增）
+    user_videos_parser = subparsers.add_parser('user-videos', help='批量下载UP主所有视频')
+    # 用户标识（二选一）
+    user_group = user_videos_parser.add_mutually_exclusive_group(required=True)
+    user_group.add_argument('--uid', type=int, help='UP主的UID')
+    user_group.add_argument('--user', type=str, help='UP主的用户名')
+    # 下载选项
+    user_videos_parser.add_argument('--output', default='./storage/video',
+                                   help='输出目录 (默认: ./storage/video)')
+    user_videos_parser.add_argument('--audio-only', action='store_true',
+                                   help='仅下载音频')
+    # 代理设置
+    user_videos_parser.add_argument('--proxy', action='store_true',
+                                   help='使用代理')
+    user_videos_parser.add_argument('--proxy-url', default='http://127.0.0.1:7890',
+                                   help='代理地址 (默认: http://127.0.0.1:7890)')
+    
     # 解析参数
     args = parser.parse_args()
     
@@ -165,6 +186,9 @@ def main():
         elif args.command == 'setup-gpu':
             from cli.setup_gpu import main as setup_main
             setup_main()
+        elif args.command == 'user-videos':
+            from cli.download_user_videos import main as user_videos_main
+            user_videos_main(args)
     except KeyboardInterrupt:
         print("\n用户中断操作")
         sys.exit(1)
