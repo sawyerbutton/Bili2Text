@@ -47,6 +47,10 @@ python -m cli.main audio --url "https://www.bilibili.com/video/BV1234567890" --m
 # Video download only
 python -m cli.main video --url "https://www.bilibili.com/video/BV1234567890"
 
+# Batch download all videos from a UP user (New)
+python -m cli.main user-videos --uid 3546737620814672  # By UID
+python -m cli.main user-videos --user "UP主名称" --audio-only  # By username
+
 # Batch processing
 python -m cli.main batch --input-dir ./videos --output-dir ./results --type audio
 ```
@@ -97,6 +101,7 @@ The project implements a shared-core architecture where both web and CLI applica
 - `cli/main.py`: Unified CLI entry point with subcommands
 - `cli/download_audio.py`: Audio transcription functionality
 - `cli/download_video.py`: Video download functionality
+- `cli/download_user_videos.py`: Batch download all videos from UP users
 - `cli/get_dynamics.py`: Dynamic content retrieval
 
 #### Shared Libraries

@@ -7,11 +7,12 @@ cli/
 ├── main.py                # CLI主入口，提供统一的命令行接口
 ├── download_audio.py      # 音频下载和Whisper转录功能
 ├── download_video.py      # 视频文件下载功能
+├── download_user_videos.py # 批量下载UP主所有视频（新增）
 ├── get_dynamics.py        # 获取UP主动态视频列表
 ├── get_dynamics_demo.py   # 动态获取演示版本（无需依赖）
 ├── transcribe_videos.py   # 本地视频文件批量转录
-├── gpu_transcribe.py      # GPU加速转录工具（新增）
-├── setup_gpu.py           # GPU环境配置脚本（新增）
+├── gpu_transcribe.py      # GPU加速转录工具
+├── setup_gpu.py           # GPU环境配置脚本
 ├── data/                  # 数据文件目录
 │   └── dynamics_demo.json # 演示数据
 └── deprecated/            # 已废弃的旧版本代码
@@ -29,11 +30,12 @@ python -m cli.main <command> [options]
 
 - **audio**: 下载音频并转录
 - **video**: 下载视频文件
+- **user-videos**: 批量下载UP主所有视频（新增）
 - **dynamics**: 获取UP主动态
 - **transcribe**: 转录本地视频
 - **batch**: 批量处理
-- **gpu-transcribe**: GPU加速转录（新增）
-- **setup-gpu**: 配置GPU环境（新增）
+- **gpu-transcribe**: GPU加速转录
+- **setup-gpu**: 配置GPU环境
 
 ### 3. 示例
 
@@ -46,6 +48,14 @@ python -m cli.main audio --url "https://www.bilibili.com/video/BV1234567890" --m
 
 # 下载视频
 python -m cli.main video --url "https://www.bilibili.com/video/BV1234567890"
+
+# 批量下载UP主所有视频（新功能）
+# 通过UID下载
+python -m cli.main user-videos --uid 3546737620814672
+# 通过用户名下载（仅音频）
+python -m cli.main user-videos --user "梵公子Game学" --audio-only
+# 使用代理
+python -m cli.main user-videos --uid 123456 --proxy
 
 # 转录本地视频
 python -m cli.main transcribe --input-dir ./videos --model medium
@@ -86,12 +96,20 @@ python -m cli.main setup-gpu
 - 筛选视频类动态
 - 返回视频信息列表
 
+### download_user_videos.py（新增）
+- 批量下载UP主所有投稿视频
+- 支持通过UID或用户名识别UP主
+- 智能去重，避免重复下载
+- 为每个UP主创建独立存储目录
+- 支持音频/视频模式切换
+- 内置代理支持
+
 ### transcribe_videos.py
 - 批量处理本地视频文件
 - 提取音频并转录
 - 支持多种视频格式
 
-### gpu_transcribe.py（新增）
+### gpu_transcribe.py
 - GPU加速的Whisper转录
 - 支持B站URL和本地文件输入
 - 支持FP16混合精度推理
