@@ -91,7 +91,7 @@ chmod +x bili2text.sh
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/Bili2Text.git
+git clone https://github.com/sawyerbutton/Bili2Text.git
 cd Bili2Text
 
 # 使用Docker Compose一键部署
@@ -106,7 +106,7 @@ open http://localhost
 #### 1. 环境准备
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/Bili2Text.git
+git clone https://github.com/sawyerbutton/Bili2Text.git
 cd Bili2Text
 
 # 创建虚拟环境
