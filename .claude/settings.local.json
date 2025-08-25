@@ -38,7 +38,11 @@
       "mcp__promptx__promptx_welcome",
       "Bash(source:*)",
       "Bash(./venv/bin/python:*)",
-      "mcp__promptx__promptx_recall"
+      "mcp__promptx__promptx_recall",
+      "Bash(pip install:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(./stable_transcribe.sh)"
     ],
     "deny": []
   }

@@ -51,8 +51,56 @@ python -m cli.main video --url "https://www.bilibili.com/video/BV1234567890"
 python -m cli.main user-videos --uid 3546737620814672  # By UID
 python -m cli.main user-videos --user "UP主名称" --audio-only  # By username
 
+# GPU-accelerated transcription
+python -m cli.main gpu-transcribe --url "https://www.bilibili.com/video/BV1234567890" --model large --device cuda
+python -m cli.main gpu-transcribe --input video.mp4 --model large-v3
+
 # Batch processing
 python -m cli.main batch --input-dir ./videos --output-dir ./results --type audio
+
+# Local video transcription
+python -m cli.main transcribe --input-dir ./storage/video --output-dir ./storage/results/result
+
+```
+
+### Alternative CLI Using Conda (Recommended)
+```bash
+# Setup conda environment
+conda create -n bili2text-cli python=3.11 -y
+conda activate bili2text-cli
+
+# Install dependencies for CLI
+pip install bilibili-api-python bilix httpx beautifulsoup4 lxml
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+pip install openai-whisper
+
+# Use the convenience script
+./bili2text.sh --help  # Links to bin/bili2text.sh which uses conda
+```
+
+### GPU Setup (Optional)
+```bash
+# Setup GPU environment
+python -m cli.main setup-gpu
+
+# For manual GPU PyTorch installation
+./scripts/setup/install_gpu_pytorch.sh  # or scripts/setup/setup_gpu_env.sh
+
+# Test GPU availability
+python -m cli.test_gpu
+
+# Use bili2text-gpu conda environment
+conda activate bili2text-gpu
+```
+
+### Batch GPU Transcription
+```bash
+# Batch transcribe all videos in storage/video directory
+./scripts/transcribe/stable_transcribe.sh
+
+# Or use Python scripts for more control
+python scripts/transcribe/batch_transcribe_gpu_improved.py
+python scripts/transcribe/resume_transcribe.py  # For resuming interrupted tasks
 ```
 
 ### Docker Deployment
@@ -79,7 +127,6 @@ pytest tests/
 
 # Install pre-commit hooks
 pre-commit install
-```
 
 ## Architecture Overview
 
@@ -132,7 +179,25 @@ storage/
 ├── audio/     # Downloaded audio files
 ├── video/     # Downloaded video files
 ├── results/   # Transcription results
+│   └── gpu_transcripts/  # GPU batch transcription results
 └── temp/      # Temporary processing files
+```
+
+## Scripts Organization
+```
+scripts/
+├── transcribe/   # Transcription scripts
+│   ├── batch_transcribe_gpu.py
+│   ├── batch_transcribe_gpu_improved.py
+│   ├── resume_transcribe.py
+│   └── stable_transcribe.sh
+├── setup/        # Setup and configuration scripts
+│   ├── gpu_env_manager.py
+│   ├── install_gpu_pytorch.sh
+│   └── setup_gpu_env.sh
+└── test/         # Test scripts
+    ├── test_download_simple.py
+    └── test_user_videos.py
 ```
 
 ## Database Schema
@@ -152,3 +217,9 @@ The project implements comprehensive error handling:
 - File cleanup and storage management are automated
 - System monitoring includes CPU, memory, and disk usage tracking
 - Docker deployment includes Nginx reverse proxy and Redis caching
+
+## Important Instruction Reminders
+- Do what has been asked; nothing more, nothing less
+- NEVER create files unless they're absolutely necessary for achieving your goal
+- ALWAYS prefer editing an existing file to creating a new one
+- NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User
