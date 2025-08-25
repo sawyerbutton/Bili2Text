@@ -2,10 +2,10 @@
 
 <div align="center">
 
-![GitHub stars](https://img.shields.io/github/stars/bili2text/bili2text?style=for-the-badge)
-![GitHub forks](https://img.shields.io/github/forks/bili2text/bili2text?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues/bili2text/bili2text?style=for-the-badge)
-![License](https://img.shields.io/github/license/bili2text/bili2text?style=for-the-badge)
+![GitHub stars](https://img.shields.io/github/stars/sawyerbutton/Bili2Text?style=for-the-badge)
+![GitHub forks](https://img.shields.io/github/forks/sawyerbutton/Bili2Text?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/sawyerbutton/Bili2Text?style=for-the-badge)
+![License](https://img.shields.io/github/license/sawyerbutton/Bili2Text?style=for-the-badge)
 
 **一个功能强大的哔哩哔哩视频转录工具，基于OpenAI Whisper技术**
 
