@@ -4,222 +4,140 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Bili2Text is a powerful video transcription tool for Bilibili videos, built with dual architecture:
-- **Web Application**: Modern Flask-based web interface with WebSocket real-time updates
+Bili2Text is a Bilibili video transcription tool with dual architecture:
+- **Web Application**: Flask + SocketIO with real-time WebSocket updates
 - **CLI Tool**: Command-line interface for batch processing and automation
+- **Core Technology**: OpenAI Whisper for speech-to-text transcription
 
-The project uses OpenAI Whisper for speech recognition and provides comprehensive video downloading and transcription capabilities.
+## Essential Commands
 
-## Development Commands
+### Quick Start
+```bash
+# Web application (development)
+python run.py --debug
+
+# CLI tool (using conda - recommended)
+conda activate bili2text-cli
+./bili2text.sh audio --url "https://www.bilibili.com/video/BV1234567890"
+
+# GPU batch transcription
+conda activate bili2text-gpu
+./scripts/transcribe/stable_transcribe.sh
+```
 
 ### Environment Setup
 ```bash
-# Create virtual environment
-python3.11 -m venv venv
-source venv/bin/activate  # Linux/macOS
-# or venv\Scripts\activate  # Windows
-
-# Install dependencies
-pip install -r requirements/web.txt    # For web app
-pip install -r requirements/cli.txt    # For CLI only
-pip install -r requirements/dev.txt    # For development
-```
-
-### Running the Application
-
-#### Web Application
-```bash
-# Development mode
-python run.py --debug
-
-# Production mode
-python run.py --production --host 0.0.0.0 --port 8000
-
-# Quick application test
-python test_app.py
-```
-
-#### CLI Tool
-```bash
-# Audio transcription
-python -m cli.main audio --url "https://www.bilibili.com/video/BV1234567890" --model medium
-
-# Video download only
-python -m cli.main video --url "https://www.bilibili.com/video/BV1234567890"
-
-# Batch download all videos from a UP user (New)
-python -m cli.main user-videos --uid 3546737620814672  # By UID
-python -m cli.main user-videos --user "UP主名称" --audio-only  # By username
-
-# GPU-accelerated transcription
-python -m cli.main gpu-transcribe --url "https://www.bilibili.com/video/BV1234567890" --model large --device cuda
-python -m cli.main gpu-transcribe --input video.mp4 --model large-v3
-
-# Batch processing
-python -m cli.main batch --input-dir ./videos --output-dir ./results --type audio
-
-# Local video transcription
-python -m cli.main transcribe --input-dir ./storage/video --output-dir ./storage/results/result
-
-```
-
-### Alternative CLI Using Conda (Recommended)
-```bash
-# Setup conda environment
+# CLI with conda (recommended for isolation)
 conda create -n bili2text-cli python=3.11 -y
 conda activate bili2text-cli
-
-# Install dependencies for CLI
-pip install bilibili-api-python bilix httpx beautifulsoup4 lxml
+pip install bilibili-api-python bilix httpx beautifulsoup4 lxml openai-whisper
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# GPU environment (for batch transcription)
+conda create -n bili2text-gpu python=3.11 -y
+conda activate bili2text-gpu
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 pip install openai-whisper
 
-# Use the convenience script
-./bili2text.sh --help  # Links to bin/bili2text.sh which uses conda
+# Web application (venv)
+python3.11 -m venv venv
+source venv/bin/activate
+pip install -r requirements/cli-cpu.txt  # or cli-gpu.txt for GPU
 ```
 
-### GPU Setup (Optional)
+### Common Development Tasks
 ```bash
-# Setup GPU environment
-python -m cli.main setup-gpu
+# Run specific CLI commands
+python -m cli.main audio --url "VIDEO_URL" --model medium
+python -m cli.main video --url "VIDEO_URL"
+python -m cli.main user-videos --uid 3546737620814672
+python -m cli.main gpu-transcribe --input video.mp4 --model large-v3
 
-# For manual GPU PyTorch installation
-./scripts/setup/install_gpu_pytorch.sh  # or scripts/setup/setup_gpu_env.sh
+# Batch operations
+python scripts/transcribe/batch_transcribe_gpu_improved.py  # Full batch with progress
+python scripts/transcribe/resume_transcribe.py              # Resume interrupted batch
 
 # Test GPU availability
 python -m cli.test_gpu
 
-# Use bili2text-gpu conda environment
-conda activate bili2text-gpu
+# Web app with specific configurations
+python run.py --production --host 0.0.0.0 --port 8000
+
+# Docker deployment
+docker-compose -f deployment/docker/docker-compose.yml up -d
 ```
 
-### Batch GPU Transcription
-```bash
-# Batch transcribe all videos in storage/video directory
-./scripts/transcribe/stable_transcribe.sh
+## Architecture Insights
 
-# Or use Python scripts for more control
-python scripts/transcribe/batch_transcribe_gpu_improved.py
-python scripts/transcribe/resume_transcribe.py  # For resuming interrupted tasks
+### Dual-Mode Execution Pattern
+The project separates Web and CLI modes but shares core functionality:
+```
+Project Root
+├── cli/                    # CLI entry points (main.py handles subcommands)
+│   ├── main.py            # Unified CLI with argparse subcommands
+│   ├── download_audio.py  # B站音频下载 + 自动转录
+│   ├── download_video.py  # B站视频下载
+│   └── download_user_videos.py  # UP主批量下载
+├── webapp/                 # Web application
+│   ├── app.py             # Flask factory + SocketIO setup
+│   ├── api/routes.py      # RESTful endpoints
+│   └── core/              # Business logic (task_manager, file_manager)
+├── src/                    # Shared libraries (both modes use this)
+│   ├── transcriber/       # Whisper transcription engine
+│   └── downloader/        # Bilibili download utilities
+└── scripts/               # Standalone utility scripts
+    └── transcribe/        # GPU batch transcription scripts
 ```
 
-### Docker Deployment
-```bash
-# Quick deployment (Linux/macOS)
-chmod +x deploy.sh && ./deploy.sh deploy
+### Key Technical Decisions
 
-# Quick deployment (Windows)
-.\deploy.ps1 deploy
+1. **Conda vs Venv**: Project uses conda for CLI tools (better isolation, easier GPU setup) and venv for web app
+2. **GPU Transcription**: Separate conda environment (`bili2text-gpu`) to avoid dependency conflicts
+3. **Batch Processing**: Uses temporary files to handle special characters in Chinese filenames
+4. **Resume Capability**: Scripts check `storage/results/gpu_transcripts/` for existing files before processing
 
-# Manual Docker commands
-docker-compose up -d
-docker-compose logs -f bili2text-web
-```
-
-### Development Tools
-```bash
-# Code formatting
-black src/ cli/ webapp/
-isort src/ cli/ webapp/
-
-# Run tests
-pytest tests/
-
-# Install pre-commit hooks
-pre-commit install
-
-## Architecture Overview
-
-### Dual-Mode Design
-The project implements a shared-core architecture where both web and CLI applications use common libraries from `src/`:
-- **CLI Mode** (`cli/`): Command-line tools for automation and batch processing
-- **Web Mode** (`webapp/`): Full-featured web application with real-time updates
-- **Shared Core** (`src/`): Common transcription, downloading, and utility functions
-
-### Key Components
-
-#### Web Application Structure
-- `webapp/app.py`: Flask application factory with SocketIO integration
-- `webapp/api/routes.py`: RESTful API endpoints for task management
-- `webapp/core/`: Core business logic (task management, file handling, system monitoring)
-- `webapp/static/`: Frontend assets (HTML templates, CSS, JavaScript)
-
-#### CLI Tool Structure
-- `cli/main.py`: Unified CLI entry point with subcommands
-- `cli/download_audio.py`: Audio transcription functionality
-- `cli/download_video.py`: Video download functionality
-- `cli/download_user_videos.py`: Batch download all videos from UP users
-- `cli/get_dynamics.py`: Dynamic content retrieval
-
-#### Shared Libraries
-- `src/transcriber/`: Whisper-based transcription engine
-- `src/downloader/`: Video/audio download utilities
-- `src/utils/`: Common utility functions
-- `src/models/`: Data models and schemas
-
-### Configuration System
-- `config/app/`: Environment-specific configurations
-- `config/models/`: Whisper model configurations
-- Multiple requirement files for different deployment scenarios
-
-### Real-time Communication
-- WebSocket integration for live progress updates
-- Task status broadcasting to connected clients
-- System monitoring with real-time performance metrics
-
-## Whisper Models Available
-- `tiny`: Fastest, lower accuracy (39MB)
-- `base`: Balanced performance (74MB)
-- `medium`: Recommended for most use cases (769MB)
-- `large-v3`: Highest accuracy (1550MB)
-
-## Storage Structure
+### Storage Layout
 ```
 storage/
-├── audio/     # Downloaded audio files
-├── video/     # Downloaded video files
-├── results/   # Transcription results
-│   └── gpu_transcripts/  # GPU batch transcription results
-└── temp/      # Temporary processing files
+├── video/                  # Downloaded videos (organized by UP user)
+├── audio/                  # Extracted audio files
+├── results/
+│   ├── gpu_transcripts/   # GPU batch transcription outputs
+│   └── result/            # CLI transcription outputs
+└── temp/                   # Temporary processing files
 ```
 
-## Scripts Organization
-```
-scripts/
-├── transcribe/   # Transcription scripts
-│   ├── batch_transcribe_gpu.py
-│   ├── batch_transcribe_gpu_improved.py
-│   ├── resume_transcribe.py
-│   └── stable_transcribe.sh
-├── setup/        # Setup and configuration scripts
-│   ├── gpu_env_manager.py
-│   ├── install_gpu_pytorch.sh
-│   └── setup_gpu_env.sh
-└── test/         # Test scripts
-    ├── test_download_simple.py
-    └── test_user_videos.py
-```
+### Critical Files
 
-## Database Schema
-- SQLite database with Task, SystemStatus, and TaskStatistics models
-- Automatic database initialization on first run
-- Migration support through SQLAlchemy
+- `cli/main.py`: CLI argument parsing and subcommand routing
+- `webapp/app.py`: Flask application factory with SocketIO
+- `scripts/transcribe/stable_transcribe.sh`: Production-ready batch transcription
+- `scripts/transcribe/resume_transcribe.py`: Handles interrupted batch jobs
+- `config/models/whisper_models.json`: Model configurations and download URLs
 
-## Error Handling
-The project implements comprehensive error handling:
-- Frontend: Global error handler with retry mechanisms and user-friendly messages
-- Backend: Unified exception middleware with structured error responses
-- Test page available at `/error-test` for error handling verification
+### Whisper Model Selection
+- `tiny`: Fast but less accurate (39MB)
+- `base`: Good balance for Chinese (74MB) - default for batch
+- `medium`: Recommended for quality (769MB)
+- `large-v3`: Best accuracy, needs GPU (1550MB)
 
-## Development Notes
-- The project supports both development and production modes
-- WebSocket heartbeat and reconnection are handled automatically
-- File cleanup and storage management are automated
-- System monitoring includes CPU, memory, and disk usage tracking
-- Docker deployment includes Nginx reverse proxy and Redis caching
+### Common Issues & Solutions
 
-## Important Instruction Reminders
-- Do what has been asked; nothing more, nothing less
-- NEVER create files unless they're absolutely necessary for achieving your goal
-- ALWAYS prefer editing an existing file to creating a new one
-- NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User
+1. **Special characters in filenames**: Scripts use `safe_filename()` function and temporary files
+2. **FP16 GPU errors**: Use `--compute-type float32` instead of default fp16
+3. **Conda environment not found**: Run `conda create -n bili2text-gpu python=3.11` first
+4. **WebSocket disconnections**: Frontend has automatic reconnection with exponential backoff
+
+## Database & State Management
+
+- SQLite database at `webapp/data/bili2text.db`
+- Task states: pending, processing, completed, failed
+- WebSocket rooms for real-time updates per task
+- System monitoring updates every 5 seconds
+
+## Deployment Notes
+
+- Docker deployment uses Nginx reverse proxy + Gunicorn
+- Production mode disables debug and uses threading for SocketIO
+- Storage directories are volume-mounted in Docker
+- Redis optional for session management in production

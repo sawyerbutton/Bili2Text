@@ -184,6 +184,16 @@ cython_debug/
 .vscode/
 *.code-workspace
 
+# Claude Code
+.claude/
+
+# PromptX
+.promptx/
+
+# Cursor
+.cursor/
+.cursorrules
+
 # Sublime Text
 *.sublime-project
 *.sublime-workspace
