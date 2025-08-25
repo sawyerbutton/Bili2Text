@@ -36,7 +36,7 @@ echo "   支持断点续传"
 echo ""
 
 # 执行转写脚本
-./scripts/transcribe/stable_transcribe.sh
+./transcribe/stable_transcribe.sh
 
 echo ""
 echo "✅ 批量转写完成！"

@@ -23,6 +23,8 @@ conda activate bili2text-cli
 # GPU batch transcription
 conda activate bili2text-gpu
 ./scripts/transcribe/stable_transcribe.sh
+# Or use the convenience wrapper
+./scripts/transcribe_all.sh
 ```
 
 ### Environment Setup
