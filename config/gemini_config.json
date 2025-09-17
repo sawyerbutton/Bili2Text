@@ -1,0 +1,17 @@
+{
+  "api_key": "YOUR_GEMINI_API_KEY",
+  "model_name": "models/gemini-2.5-flash",
+  "temperature": 0.3,
+  "top_p": 0.95,
+  "top_k": 40,
+  "max_tokens_per_request": 30000,
+  "cache_enabled": true,
+  "cache_dir": "storage/cache/gemini",
+  "term_corrections": {
+    "Dipsyc R1": "DeepSeek R1",
+    "Gorax 3": "Grok 3",
+    "Klaus 3.7": "Claude 3.7",
+    "O3 Mini Hide": "o3-mini-high",
+    "LiCo": "LeetCode"
+  }
+}

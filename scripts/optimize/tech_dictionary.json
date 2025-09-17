@@ -1,0 +1,156 @@
+{
+  "ai_ml_terms": {
+    "大语言模型": "Large Language Model (LLM)",
+    "生成式AI": "Generative AI",
+    "预训练模型": "Pre-trained Model",
+    "微调": "Fine-tuning",
+    "提示工程": "Prompt Engineering",
+    "上下文学习": "In-context Learning",
+    "零样本学习": "Zero-shot Learning",
+    "少样本学习": "Few-shot Learning",
+    "强化学习": "Reinforcement Learning",
+    "监督学习": "Supervised Learning",
+    "无监督学习": "Unsupervised Learning"
+  },
+  "function_calling_terms": {
+    "Function Calling": {
+      "definition": "大语言模型调用外部函数/工具的能力",
+      "synonyms": ["函数调用", "工具调用", "Tool Calling"],
+      "related_concepts": ["Tool Use", "API调用", "外部工具集成"]
+    },
+    "工具选择": {
+      "definition": "模型从可用工具列表中选择合适工具的过程",
+      "english": "Tool Selection"
+    },
+    "参数提取": {
+      "definition": "从用户输入中提取函数调用所需参数",
+      "english": "Parameter Extraction"
+    },
+    "工具执行": {
+      "definition": "实际调用外部工具并获取结果",
+      "english": "Tool Execution"
+    }
+  },
+  "mcp_terms": {
+    "MCP": {
+      "full_name": "Model Context Protocol",
+      "definition": "Anthropic开发的模型上下文协议，用于标准化AI应用与外部工具的集成",
+      "components": ["MCP Client", "MCP Server", "Protocol Specification"]
+    },
+    "MCP Client": {
+      "definition": "实现MCP协议的客户端，通常集成在AI应用中",
+      "chinese": "MCP客户端"
+    },
+    "MCP Server": {
+      "definition": "提供工具和资源的服务端，遵循MCP协议规范",
+      "chinese": "MCP服务器"
+    },
+    "资源发现": {
+      "definition": "MCP中客户端发现服务器提供资源的机制",
+      "english": "Resource Discovery"
+    },
+    "工具发现": {
+      "definition": "MCP中客户端发现可用工具的机制",
+      "english": "Tool Discovery"
+    }
+  },
+  "context_engineering_terms": {
+    "Context Engineering": {
+      "definition": "精心设计和优化输入到大语言模型的上下文信息的技术和方法论",
+      "chinese": "上下文工程",
+      "key_techniques": ["Context Selection", "Context Compression", "Context Isolation", "Context Storage"]
+    },
+    "Context Window": {
+      "definition": "模型能够处理的最大输入长度，通常以Token数量衡量",
+      "chinese": "上下文窗口"
+    },
+    "Context Selection": {
+      "definition": "从大量信息中选择最相关内容放入模型输入的技术",
+      "chinese": "上下文选择"
+    },
+    "Context Compression": {
+      "definition": "压缩历史对话和中间结果以节省Context Window空间",
+      "chinese": "上下文压缩"
+    },
+    "Context Isolation": {
+      "definition": "不同模块间的上下文相互隔离，避免干扰",
+      "chinese": "上下文隔离"
+    }
+  },
+  "agent_terms": {
+    "Agent": {
+      "definition": "能够感知环境、做出决策并执行动作的AI系统",
+      "chinese": "智能体",
+      "types": ["Single Agent", "Multi-Agent", "Hierarchical Agent"]
+    },
+    "Multi-Agent": {
+      "definition": "多个Agent协作完成复杂任务的系统架构",
+      "chinese": "多智能体系统"
+    },
+    "Agent编排": {
+      "definition": "协调多个Agent执行顺序和交互方式",
+      "english": "Agent Orchestration"
+    },
+    "工具链": {
+      "definition": "Agent可以调用的一系列工具的组合",
+      "english": "Tool Chain"
+    }
+  },
+  "technical_infrastructure": {
+    "API": {
+      "full_name": "Application Programming Interface",
+      "definition": "应用程序编程接口"
+    },
+    "REST API": {
+      "definition": "基于REST架构风格的API"
+    },
+    "JSON": {
+      "full_name": "JavaScript Object Notation",
+      "definition": "轻量级数据交换格式"
+    },
+    "JSON Schema": {
+      "definition": "描述JSON数据结构的元数据格式"
+    },
+    "WebSocket": {
+      "definition": "支持客户端和服务器间双向实时通信的协议"
+    },
+    "HTTP协议": {
+      "definition": "超文本传输协议，Web通信的基础"
+    }
+  },
+  "model_specific_terms": {
+    "GPT系列": {
+      "GPT-4": "OpenAI的大语言模型",
+      "GPT-4 Turbo": "GPT-4的优化版本",
+      "GPT-4o": "GPT-4的多模态版本"
+    },
+    "Claude系列": {
+      "Claude 3.5 Sonnet": "Anthropic的大语言模型",
+      "Claude 3 Opus": "Claude 3系列的最大模型",
+      "Claude 3 Haiku": "Claude 3系列的快速模型"
+    },
+    "其他模型": {
+      "Gemini": "Google的大语言模型",
+      "DeepSeek": "深度求索的大语言模型",
+      "Qwen": "阿里巴巴的通义千问模型"
+    }
+  },
+  "evaluation_metrics": {
+    "准确率": {
+      "definition": "模型输出正确结果的比例",
+      "english": "Accuracy"
+    },
+    "延迟": {
+      "definition": "从输入到输出的时间间隔",
+      "english": "Latency"
+    },
+    "吞吐量": {
+      "definition": "单位时间内处理的请求数量",
+      "english": "Throughput"
+    },
+    "Token效率": {
+      "definition": "每个Token的处理效率",
+      "english": "Token Efficiency"
+    }
+  }
+}

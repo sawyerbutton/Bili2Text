@@ -23,8 +23,6 @@ conda activate bili2text-cli
 # GPU batch transcription
 conda activate bili2text-gpu
 ./scripts/transcribe/stable_transcribe.sh
-# Or use the convenience wrapper
-./scripts/transcribe_all.sh
 ```
 
 ### Environment Setup
@@ -67,6 +65,11 @@ python run.py --production --host 0.0.0.0 --port 8000
 
 # Docker deployment
 docker-compose -f deployment/docker/docker-compose.yml up -d
+
+# Run tests (if available)
+python scripts/test/test_app.py
+python scripts/test/test_download_simple.py
+python scripts/test/test_user_videos.py
 ```
 
 ## Architecture Insights
@@ -95,7 +98,7 @@ Project Root
 
 1. **Conda vs Venv**: Project uses conda for CLI tools (better isolation, easier GPU setup) and venv for web app
 2. **GPU Transcription**: Separate conda environment (`bili2text-gpu`) to avoid dependency conflicts
-3. **Batch Processing**: Uses temporary files to handle special characters in Chinese filenames
+3. **Batch Processing**: Uses temporary files with `safe_filename()` and `get_temp_filename()` to handle special characters in Chinese filenames
 4. **Resume Capability**: Scripts check `storage/results/gpu_transcripts/` for existing files before processing
 
 ### Storage Layout
@@ -105,17 +108,26 @@ storage/
 ├── audio/                  # Extracted audio files
 ├── results/
 │   ├── gpu_transcripts/   # GPU batch transcription outputs
-│   └── result/            # CLI transcription outputs
+│   ├── result/            # CLI transcription outputs
+│   ├── expert_optimized/  # Expert-optimized documents
+│   └── gemini_optimized/  # Gemini 2.5 Flash optimized documents
 └── temp/                   # Temporary processing files
 ```
 
 ### Critical Files
 
+#### Core System
 - `cli/main.py`: CLI argument parsing and subcommand routing
 - `webapp/app.py`: Flask application factory with SocketIO
 - `scripts/transcribe/stable_transcribe.sh`: Production-ready batch transcription
+- `scripts/transcribe/batch_transcribe_gpu_improved.py`: GPU batch processing with progress tracking
 - `scripts/transcribe/resume_transcribe.py`: Handles interrupted batch jobs
-- `config/models/whisper_models.json`: Model configurations and download URLs
+
+#### Document Optimization (New - 2025-09-17)
+- `scripts/optimize/gemini_document_optimizer.py`: Core Gemini 2.5 Flash optimization engine
+- `serial_batch_optimize.py`: Serial batch processing for API rate limiting
+- `optimize_with_gemini.sh`: Shell interface for optimization
+- `config/gemini_config.json`: Gemini API configuration
 
 ### Whisper Model Selection
 - `tiny`: Fast but less accurate (39MB)
@@ -143,3 +155,34 @@ storage/
 - Production mode disables debug and uses threading for SocketIO
 - Storage directories are volume-mounted in Docker
 - Redis optional for session management in production
+
+## Document Optimization Workflow (Added 2025-09-17)
+
+### Using Gemini 2.5 Flash for Document Enhancement
+
+After transcription, use the Gemini optimization system to improve document quality:
+
+```bash
+# Set up Gemini API
+export GEMINI_API_KEY="your-api-key"
+
+# Optimize single document
+python optimize_document_gemini25.py
+
+# Batch optimize all documents (serial processing for API rate limits)
+python serial_batch_optimize.py
+
+# Quick optimization with basic corrections
+python fast_batch_optimize.py
+```
+
+### Optimization Features
+- **Term Corrections**: 80+ technical terms and AI model names
+- **Structure Enhancement**: Automatic Markdown formatting
+- **Content Refinement**: Remove colloquial expressions
+- **Batch Processing**: Handle multiple documents efficiently
+
+### API Rate Limiting
+- Use serial processing (5-second intervals between requests)
+- Cache results to avoid redundant API calls
+- Smart document segmentation for large files

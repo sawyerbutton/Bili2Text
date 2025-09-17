@@ -35,6 +35,16 @@
 - ⚡ **实时通信** - WebSocket双向通信
 - 📈 **数据可视化** - Chart.js性能图表
 
+## 🆕 最新功能 (2025-09-17更新)
+
+### 📄 智能文档优化系统
+- 🤖 **Gemini 2.5 Flash集成** - 使用Google最新AI模型优化文档
+- 🔧 **专有名词纠错** - 80+技术术语自动纠正
+- 📊 **批量处理** - 串行优化避免API限流
+- 📝 **Markdown优化** - 自动添加结构和格式
+
+详见 [文档优化指南](docs/gemini_optimizer_usage.md)
+
 ## 📋 系统要求
 
 ### 🖥️ 最低配置
@@ -400,6 +410,25 @@ isort src/ cli/ webapp/
 3. 在 `webapp/api/` 中添加Web API
 4. 编写测试用例
 5. 更新文档
+
+### 文档优化功能（新增）
+使用Google Gemini 2.5 Flash优化转录后的文档：
+
+```bash
+# 设置API密钥
+export GEMINI_API_KEY="your-api-key"
+
+# 优化单个文档
+python optimize_document_gemini25.py
+
+# 批量优化（推荐）
+python serial_batch_optimize.py
+
+# 使用Shell脚本
+./optimize_with_gemini.sh -i input.md -o output.md
+```
+
+详细使用说明见 [Gemini优化器文档](docs/gemini_optimizer_usage.md)
 
 ## 📄 API文档
 
