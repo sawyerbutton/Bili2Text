@@ -4,185 +4,131 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Bili2Text is a Bilibili video transcription tool with dual architecture:
+Bili2Text is a dual-mode Bilibili video transcription and optimization system:
 - **Web Application**: Flask + SocketIO with real-time WebSocket updates
 - **CLI Tool**: Command-line interface for batch processing and automation
-- **Core Technology**: OpenAI Whisper for speech-to-text transcription
+- **Document Optimizer**: Gemini 2.5 Flash integration for ASR output enhancement
 
 ## Essential Commands
 
-### Quick Start
+### Transcription Workflow
 ```bash
-# Web application (development)
-python run.py --debug
-
-# CLI tool (using conda - recommended)
-conda activate bili2text-cli
-./bili2text.sh audio --url "https://www.bilibili.com/video/BV1234567890"
-
-# GPU batch transcription
+# Step 1: Download and transcribe videos (GPU)
 conda activate bili2text-gpu
 ./scripts/transcribe/stable_transcribe.sh
+
+# Step 2: Optimize transcripts with Gemini
+export GEMINI_API_KEY="your-api-key"
+python batch_optimize_txt_to_markdown.py \
+  --input storage/results/gpu_transcripts \
+  --output storage/results/professional_markdown
 ```
 
-### Environment Setup
+### CLI Operations
 ```bash
-# CLI with conda (recommended for isolation)
-conda create -n bili2text-cli python=3.11 -y
-conda activate bili2text-cli
-pip install bilibili-api-python bilix httpx beautifulsoup4 lxml openai-whisper
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+# Download audio with transcription
+./bili2text.sh audio --url "https://www.bilibili.com/video/BV1234567890" --model medium
 
-# GPU environment (for batch transcription)
-conda create -n bili2text-gpu python=3.11 -y
-conda activate bili2text-gpu
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-pip install openai-whisper
+# Batch download UP主 videos
+./bili2text.sh user-videos --uid 3546737620814672 --audio-only
 
-# Web application (venv)
-python3.11 -m venv venv
-source venv/bin/activate
-pip install -r requirements/cli-cpu.txt  # or cli-gpu.txt for GPU
+# GPU batch transcription with resume
+python scripts/transcribe/batch_transcribe_gpu_improved.py
+python scripts/transcribe/resume_transcribe.py  # If interrupted
 ```
 
-### Common Development Tasks
+### Web Application
 ```bash
-# Run specific CLI commands
-python -m cli.main audio --url "VIDEO_URL" --model medium
-python -m cli.main video --url "VIDEO_URL"
-python -m cli.main user-videos --uid 3546737620814672
-python -m cli.main gpu-transcribe --input video.mp4 --model large-v3
+# Development
+python run.py --debug
 
-# Batch operations
-python scripts/transcribe/batch_transcribe_gpu_improved.py  # Full batch with progress
-python scripts/transcribe/resume_transcribe.py              # Resume interrupted batch
-
-# Test GPU availability
-python -m cli.test_gpu
-
-# Web app with specific configurations
+# Production
 python run.py --production --host 0.0.0.0 --port 8000
 
 # Docker deployment
 docker-compose -f deployment/docker/docker-compose.yml up -d
-
-# Run tests (if available)
-python scripts/test/test_app.py
-python scripts/test/test_download_simple.py
-python scripts/test/test_user_videos.py
 ```
 
-## Architecture Insights
+## Architecture Patterns
 
-### Dual-Mode Execution Pattern
-The project separates Web and CLI modes but shares core functionality:
+### Dual-Mode Execution with Shared Core
+The project maintains strict separation between Web and CLI while sharing core functionality through `src/`:
+
+- **CLI Entry**: `cli/main.py` uses argparse subcommands pattern
+- **Web Entry**: `webapp/app.py` uses Flask factory pattern with SocketIO
+- **Shared Logic**: Both modes import from `src/transcriber/` and `src/downloader/`
+- **Batch Processing**: Standalone scripts in `scripts/transcribe/` use direct Whisper API
+
+### Storage Organization
 ```
-Project Root
-├── cli/                    # CLI entry points (main.py handles subcommands)
-│   ├── main.py            # Unified CLI with argparse subcommands
-│   ├── download_audio.py  # B站音频下载 + 自动转录
-│   ├── download_video.py  # B站视频下载
-│   └── download_user_videos.py  # UP主批量下载
-├── webapp/                 # Web application
-│   ├── app.py             # Flask factory + SocketIO setup
-│   ├── api/routes.py      # RESTful endpoints
-│   └── core/              # Business logic (task_manager, file_manager)
-├── src/                    # Shared libraries (both modes use this)
-│   ├── transcriber/       # Whisper transcription engine
-│   └── downloader/        # Bilibili download utilities
-└── scripts/               # Standalone utility scripts
-    └── transcribe/        # GPU batch transcription scripts
+storage/results/
+├── gpu_transcripts/              # Raw ASR output (TXT)
+├── professional_markdown/        # Gemini-optimized final documents
+├── mark_transcripts_professional/# Batch-optimized markdown docs
+└── [deprecated folders]/         # Legacy optimization attempts
 ```
 
-### Key Technical Decisions
+### Environment Strategy
+- **bili2text-cli**: CLI tools with CPU-based Whisper
+- **bili2text-gpu**: GPU transcription with CUDA support
+- **venv**: Web application dependencies
+- Rationale: Conda handles GPU dependencies better, venv is lighter for web
 
-1. **Conda vs Venv**: Project uses conda for CLI tools (better isolation, easier GPU setup) and venv for web app
-2. **GPU Transcription**: Separate conda environment (`bili2text-gpu`) to avoid dependency conflicts
-3. **Batch Processing**: Uses temporary files with `safe_filename()` and `get_temp_filename()` to handle special characters in Chinese filenames
-4. **Resume Capability**: Scripts check `storage/results/gpu_transcripts/` for existing files before processing
+## Critical Implementation Details
 
-### Storage Layout
-```
-storage/
-├── video/                  # Downloaded videos (organized by UP user)
-├── audio/                  # Extracted audio files
-├── results/
-│   ├── gpu_transcripts/   # GPU batch transcription outputs
-│   ├── result/            # CLI transcription outputs
-│   ├── expert_optimized/  # Expert-optimized documents
-│   └── gemini_optimized/  # Gemini 2.5 Flash optimized documents
-└── temp/                   # Temporary processing files
-```
+### Chinese Filename Handling
+- Scripts use `safe_filename()` to handle special characters
+- Temporary files pattern: `get_temp_filename()` → process → rename
+- Essential for Bilibili video titles with emojis/special chars
 
-### Critical Files
-
-#### Core System
-- `cli/main.py`: CLI argument parsing and subcommand routing
-- `webapp/app.py`: Flask application factory with SocketIO
-- `scripts/transcribe/stable_transcribe.sh`: Production-ready batch transcription
-- `scripts/transcribe/batch_transcribe_gpu_improved.py`: GPU batch processing with progress tracking
-- `scripts/transcribe/resume_transcribe.py`: Handles interrupted batch jobs
-
-#### Document Optimization (New - 2025-09-17)
-- `scripts/optimize/gemini_document_optimizer.py`: Core Gemini 2.5 Flash optimization engine
-- `serial_batch_optimize.py`: Serial batch processing for API rate limiting
-- `optimize_with_gemini.sh`: Shell interface for optimization
-- `config/gemini_config.json`: Gemini API configuration
-
-### Whisper Model Selection
-- `tiny`: Fast but less accurate (39MB)
-- `base`: Good balance for Chinese (74MB) - default for batch
-- `medium`: Recommended for quality (769MB)
-- `large-v3`: Best accuracy, needs GPU (1550MB)
-
-### Common Issues & Solutions
-
-1. **Special characters in filenames**: Scripts use `safe_filename()` function and temporary files
-2. **FP16 GPU errors**: Use `--compute-type float32` instead of default fp16
-3. **Conda environment not found**: Run `conda create -n bili2text-gpu python=3.11` first
-4. **WebSocket disconnections**: Frontend has automatic reconnection with exponential backoff
-
-## Database & State Management
-
-- SQLite database at `webapp/data/bili2text.db`
-- Task states: pending, processing, completed, failed
-- WebSocket rooms for real-time updates per task
-- System monitoring updates every 5 seconds
-
-## Deployment Notes
-
-- Docker deployment uses Nginx reverse proxy + Gunicorn
-- Production mode disables debug and uses threading for SocketIO
-- Storage directories are volume-mounted in Docker
-- Redis optional for session management in production
-
-## Document Optimization Workflow (Added 2025-09-17)
-
-### Using Gemini 2.5 Flash for Document Enhancement
-
-After transcription, use the Gemini optimization system to improve document quality:
-
-```bash
-# Set up Gemini API
-export GEMINI_API_KEY="your-api-key"
-
-# Optimize single document
-python optimize_document_gemini25.py
-
-# Batch optimize all documents (serial processing for API rate limits)
-python serial_batch_optimize.py
-
-# Quick optimization with basic corrections
-python fast_batch_optimize.py
+### Whisper Model Configuration
+```python
+# Default settings in batch scripts
+model = whisper.load_model("base")  # 74MB, good for Chinese
+compute_type = "float32"  # Avoid fp16 issues on some GPUs
 ```
 
-### Optimization Features
-- **Term Corrections**: 80+ technical terms and AI model names
-- **Structure Enhancement**: Automatic Markdown formatting
-- **Content Refinement**: Remove colloquial expressions
-- **Batch Processing**: Handle multiple documents efficiently
+### Gemini Optimization Pipeline
+```python
+# Core optimizer usage
+from scripts.optimize.professional_gemini_optimizer import ProfessionalGeminiOptimizer
 
-### API Rate Limiting
-- Use serial processing (5-second intervals between requests)
-- Cache results to avoid redundant API calls
-- Smart document segmentation for large files
+# Key configuration
+config = ProfessionalOptConfig(
+    temperature=0.0,  # Deterministic output
+    max_document_size=100000  # 100K chars limit
+)
+```
+
+### WebSocket Real-time Updates
+- Task states: pending → processing → completed/failed
+- Frontend auto-reconnects with exponential backoff
+- System monitoring broadcasts every 5 seconds
+
+## Production File Locations
+
+### Core Entry Points
+- `run.py`: Web application launcher
+- `cli/main.py`: CLI unified entry
+- `batch_optimize_txt_to_markdown.py`: Primary optimization script
+- `batch_optimize_mark_transcripts.py`: Markdown optimization
+
+### Critical Scripts
+- `scripts/transcribe/stable_transcribe.sh`: Production GPU transcription
+- `scripts/transcribe/batch_transcribe_gpu_improved.py`: Batch with progress
+- `scripts/optimize/professional_gemini_optimizer.py`: Core optimizer engine
+
+### Deprecated Code
+All experimental and superseded scripts are in `scripts/deprecated/` for reference.
+
+## API Integration Notes
+
+### Gemini 2.5 Flash
+- Context window: 100M tokens (~750K Chinese characters)
+- Rate limit: 15 RPM (free tier) → 5-second intervals in batch
+- Retry strategy: 60s wait on quota errors, 10s on general errors
+
+### Bilibili Download
+- Uses `bilix` for video/audio extraction
+- `bilibili-api-python` for user video lists
+- Proxy support via `--proxy-url` parameter

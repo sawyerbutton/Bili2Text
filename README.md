@@ -38,10 +38,31 @@
 ## 🆕 最新功能 (2025-09-17更新)
 
 ### 📄 智能文档优化系统
-- 🤖 **Gemini 2.5 Flash集成** - 使用Google最新AI模型优化文档
-- 🔧 **专有名词纠错** - 80+技术术语自动纠正
-- 📊 **批量处理** - 串行优化避免API限流
-- 📝 **Markdown优化** - 自动添加结构和格式
+- 🤖 **Gemini 2.5 Flash集成** - 使用Google最新AI模型优化文档（100万tokens上下文）
+- 🔧 **专业转录优化** - 专门针对视频逐字稿的优化提示词模板
+- 📊 **批量处理** - 支持批量优化TXT和Markdown文档
+- 🔄 **ASR纠错** - 80+技术术语和AI模型名称自动纠正
+- 📝 **格式美化** - 智能段落分割、章节结构化、去除口语化内容
+- ⚡ **TXT转Markdown** - 支持ASR输出的TXT文件直接转换为专业Markdown文档
+
+#### 使用示例
+```bash
+# 设置API密钥
+export GEMINI_API_KEY="your-api-key"
+
+# 批量优化TXT文件到Markdown
+python batch_optimize_txt_to_markdown.py --input storage/results/gpu_transcripts --output storage/results/professional_markdown
+
+# 优化现有Markdown文件
+python batch_optimize_mark_transcripts.py
+
+# 使用核心优化器
+from scripts.optimize.professional_gemini_optimizer import ProfessionalGeminiOptimizer, ProfessionalOptConfig
+
+config = ProfessionalOptConfig(api_key="your-key", temperature=0.0)
+optimizer = ProfessionalGeminiOptimizer(config)
+optimizer.optimize_file("input.txt", "output.md")
+```
 
 详见 [文档优化指南](docs/gemini_optimizer_usage.md)
 
@@ -355,10 +376,17 @@ Bili2Text/
 │   ├── audio/                    # 音频文件
 │   ├── video/                    # 视频文件
 │   ├── results/                  # 转录结果
-│   │   └── gpu_transcripts/      # GPU批量转写结果
+│   │   ├── gpu_transcripts/      # GPU批量转写结果
+│   │   ├── professional_markdown/# Gemini优化后的文档
+│   │   ├── mark_transcripts_professional/ # 优化后的转录文档
+│   │   └── gemini_optimized/     # Gemini优化文档
 │   └── temp/                     # 临时文件
 ├── 🔨 scripts/                    # 工具脚本
 │   ├── transcribe/               # 转写脚本
+│   ├── optimize/                 # 文档优化脚本
+│   │   ├── professional_gemini_optimizer.py # 核心优化引擎
+│   │   └── gemini_document_optimizer.py     # Gemini优化器
+│   ├── deprecated/               # 已弃用的脚本
 │   ├── setup/                    # 设置脚本
 │   └── test/                     # 测试脚本
 ├── 🐳 deployment/                 # 部署配置
